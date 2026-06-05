@@ -6,10 +6,10 @@ import SearchingScreen from './components/SearchingScreen'
 import ChattingScreen from './components/ChattingScreen'
 import Chatbox from './components/Chatbox'
 import LiveIndicator from './components/LiveIndicator'
+import type { Msg } from './types'
 
 type Screen = 'start' | 'searching' | 'chat'
 type FilterGender = 'male' | 'female' | 'any'
-interface Msg { text: string; fromMe: boolean }
 
 const toSocket = (g: FilterGender) => g === 'male' ? 'm' : g === 'female' ? 'f' : 'any'
 
@@ -49,8 +49,14 @@ export default function App() {
       setScreen('chat')
     }
 
-    function onMessage({ text }: { text: string }) {
-      setMessages(prev => [...prev, { text, fromMe: false }])
+    function onMessage({ text, id }: { text: string; id: string }) {
+      setMessages(prev => [...prev, { id, text, fromMe: false }])
+    }
+
+    function onPartnerReacted({ messageId, emoji }: { messageId: string; emoji: string | null }) {
+      setMessages(prev => prev.map(m =>
+        m.id === messageId ? { ...m, reaction: emoji ?? undefined } : m
+      ))
     }
 
     function onPartnerLeft() {
@@ -79,6 +85,7 @@ export default function App() {
     socket.on('partner_left',      onPartnerLeft)
     socket.on('partner_typing',    onPartnerTyping)
     socket.on('connected_count',   onConnectedCount)
+    socket.on('partner_reacted',   onPartnerReacted)
     socket.on('error',             onError)
 
     return () => {
@@ -88,6 +95,7 @@ export default function App() {
       socket.off('partner_left',     onPartnerLeft)
       socket.off('partner_typing',   onPartnerTyping)
       socket.off('connected_count',  onConnectedCount)
+      socket.off('partner_reacted',  onPartnerReacted)
       socket.off('error',            onError)
     }
   }, [])
@@ -136,8 +144,16 @@ export default function App() {
 
   function handleSend(text: string) {
     if (screen !== 'chat') return
-    socket.emit('send_message', { text })
-    setMessages(prev => [...prev, { text, fromMe: true }])
+    const id = crypto.randomUUID()
+    socket.emit('send_message', { text, id })
+    setMessages(prev => [...prev, { id, text, fromMe: true }])
+  }
+
+  function handleReact(msgId: string, emoji: string | null) {
+    socket.emit('react', { messageId: msgId, emoji })
+    setMessages(prev => prev.map(m =>
+      m.id === msgId ? { ...m, reaction: emoji ?? undefined } : m
+    ))
   }
 
   function handleTyping() {
@@ -174,6 +190,7 @@ export default function App() {
           isTyping={isPartnerTyping}
           partnerLeft={partnerLeft}
           onFindNext={handleFindNext}
+          onReact={handleReact}
         />
       )}
 
