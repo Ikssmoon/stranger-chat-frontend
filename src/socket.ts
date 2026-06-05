@@ -8,3 +8,8 @@ const BACKEND = import.meta.env.PROD
   : 'http://localhost:3001'
 
 export const socket = io(BACKEND)
+
+// Heartbeat: respond to server pings to prevent ghost connections
+socket.on('ping_custom', () => {
+  socket.emit('pong_custom')
+})
