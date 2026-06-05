@@ -22,7 +22,7 @@ export default function App() {
   const [screen, setScreen]       = useState<Screen>('start')
   const [iAm, setIAm]             = useState<FilterGender>('any')
   const [lookingFor, setLookingFor] = useState<FilterGender>('any')
-  const [filterOpen, setFilterOpen] = useState(false)
+  const [filterOpen, setFilterOpen] = useState(true)
   const [messages, setMessages]   = useState<Msg[]>([])
   const [matchTime, setMatchTime]         = useState('')
   const [notice, setNotice]               = useState<string | null>(null)
