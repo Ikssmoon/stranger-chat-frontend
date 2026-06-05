@@ -51,24 +51,29 @@ function MessageBubble({ msg, onReact }: { msg: Msg; onReact: (id: string, emoji
   }, [open])
 
   function handleReact(emoji: string) {
-    onReact(msg.id, msg.reaction === emoji ? null : emoji)
+    onReact(msg.id, msg.myReaction === emoji ? null : emoji)
     setOpen(false)
   }
 
+  const trigger = (
+    <button
+      className={`react-trigger${msg.myReaction ? ' active' : ''}`}
+      onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
+    >
+      {msg.myReaction ?? <SmileyIcon />}
+      {msg.partnerReaction && <div className="their-reaction">{msg.partnerReaction}</div>}
+    </button>
+  )
+
   return (
-    <div className={`bubble-main${msg.reaction ? ' reacted' : ''}`} ref={ref}>
+    <div className={`bubble-main${msg.myReaction ? ' reacted' : ''}`} ref={ref}>
       <span className={isEmojiOnly(msg.text) ? 'emoji-only' : ''}>{msg.text}</span>
-      <button
-        className={`react-trigger${msg.reaction ? ' active' : ''}`}
-        onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
-      >
-        {msg.reaction ?? <SmileyIcon />}
-      </button>
+      {trigger}
       <div className={`reactions-popup${open ? ' open' : ''}`}>
         {REACTIONS.map(emoji => (
           <button
             key={emoji}
-            className={`react-btn${msg.reaction === emoji ? ' active' : ''}`}
+            className={`react-btn${msg.myReaction === emoji ? ' active' : ''}`}
             onClick={e => { e.stopPropagation(); handleReact(emoji) }}
           >
             {emoji}

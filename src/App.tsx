@@ -55,7 +55,7 @@ export default function App() {
 
     function onPartnerReacted({ messageId, emoji }: { messageId: string; emoji: string | null }) {
       setMessages(prev => prev.map(m =>
-        m.id === messageId ? { ...m, reaction: emoji ?? undefined } : m
+        m.id === messageId ? { ...m, partnerReaction: emoji ?? undefined } : m
       ))
     }
 
@@ -152,7 +152,7 @@ export default function App() {
   function handleReact(msgId: string, emoji: string | null) {
     socket.emit('react', { messageId: msgId, emoji })
     setMessages(prev => prev.map(m =>
-      m.id === msgId ? { ...m, reaction: emoji ?? undefined } : m
+      m.id === msgId ? { ...m, myReaction: emoji ?? undefined } : m
     ))
   }
 

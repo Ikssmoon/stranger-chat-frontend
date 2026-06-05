@@ -2,5 +2,6 @@ export interface Msg {
   id: string
   text: string
   fromMe: boolean
-  reaction?: string
+  myReaction?: string       // reaction I placed on this message
+  partnerReaction?: string  // reaction the partner placed on this message
 }

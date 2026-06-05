@@ -689,6 +689,7 @@ button{
 .bubble-main {
   position: relative;
   display: flex;
+  justify-content: space-between;
   align-items: center;
   gap: 4px;
   width: max-content;
@@ -734,35 +735,32 @@ button{
   }
 }
 
-.bubble-main {
-  button {
-    opacity: 0;
-    transition: 0.15s;
-  }
-}
-
 .react-trigger {
-  opacity: 0.5;
   transition: .15s;
-  width: 42px;
+  scale: 0.75;
+  font-size: 24px;
+  min-width: 42px;
+  padding: 0 6px;
   height: 42px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--bg-slight);
+  background-color: #121212;
+  border: 4px solid var(--bg-primary);
   border-radius: 9999px;
+  position: absolute;
+  right: -16px;
+  bottom: -24px;
+  gap: 6px;
 
   * {
     fill: var(--tx-primary);
   }
-
-  &:hover {
-    opacity: 1;
-  }
 }
 
-.bubble-main:hover button {
-  opacity: 1;
+.me .react-trigger {
+  right: unset;
+  left: -16px;
 }
 
 .bubble-main.reacted button {
@@ -770,10 +768,11 @@ button{
 }
 
 .me .reactions-popup {
+  position: absolute;
   bottom: unset;
   left: unset;
-  top: 50%;
-  right: calc(100% - 42px);
+  top: 101%;
+  right: calc(100% - 24px);
   transform: translateY(-50%) scale(0.9);
   transform-origin: right center;
 
@@ -785,8 +784,8 @@ button{
 .match .reactions-popup {
   bottom: unset;
   right: unset;
-  top: 50%;
-  left: calc(100% - 42px);
+  top: 104%;
+  left: calc(100% - 24px);
   transform: translateY(-50%) scale(0.9);
   transform-origin: left center;
 
@@ -801,6 +800,9 @@ button{
 }
 
 .react-trigger.active {
-  background-color: unset;
+  font-size: 24px;
+}
+
+.their-reaction {
   font-size: 24px;
 }
