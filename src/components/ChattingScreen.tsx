@@ -29,67 +29,111 @@ function isEmojiOnly(s: string): boolean {
   return stripped.length === 0 && s.trim().length > 0
 }
 
-const REACTIONS = ['👍', '❤️', '😂', '😮', '😢']
+const EMOJIS = ['👍', '❤️', '😂', '😮', '😢']
 
-const SmileyIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px">
-    <path d="M480-480Zm.07 380q-78.84 0-148.21-29.92t-120.68-81.21q-51.31-51.29-81.25-120.63Q100-401.1 100-479.93q0-78.84 29.93-148.21 29.92-69.37 81.22-120.68t120.65-81.25Q401.15-860 480-860q41.46 0 80.31 8.31 38.84 8.31 74.3 24.31v67.3q-34.23-18.84-73.23-29.38Q522.38-800 480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160q133 0 226.5-93.5T800-480q0-30.46-5.73-59.12-5.73-28.65-15.96-55.49h64.46q8.61 27.46 12.92 55.71Q860-510.65 860-480q0 78.85-29.92 148.2t-81.21 120.65q-51.29 51.3-120.63 81.22Q558.9-100 480.07-100ZM810-690v-80h-80v-60h80v-80h60v80h80v60h-80v80h-60ZM616.24-527.69q21.84 0 37.03-15.29 15.19-15.28 15.19-37.11t-15.28-37.02q-15.28-15.2-37.12-15.2-21.83 0-37.02 15.29-15.19 15.28-15.19 37.11t15.28 37.02q15.28 15.2 37.11 15.2Zm-272.3 0q21.83 0 37.02-15.29 15.19-15.28 15.19-37.11t-15.28-37.02q-15.28-15.2-37.11-15.2-21.84 0-37.03 15.29-15.19 15.28-15.19 37.11t15.28 37.02q15.28 15.2 37.12 15.2Zm250.71 220.34q51.66-35.04 76.27-92.65H289.08q24.61 57.61 76.27 92.65Q417-272.31 480-272.31q63 0 114.65-35.04Z"/>
+const ReplyIcon = () => (
+  <svg width="23" height="23" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18.2083 18.2084V14.3751C18.2083 13.5765 17.9288 12.8977 17.3698 12.3386C16.8108 11.7796 16.1319 11.5001 15.3333 11.5001H6.54062L9.99062 14.9501L8.625 16.2917L2.875 10.5417L8.625 4.79175L9.99062 6.13341L6.54062 9.58341H15.3333C16.659 9.58341 17.7891 10.0506 18.7234 10.985C19.6578 11.9194 20.125 13.0494 20.125 14.3751V18.2084H18.2083Z"/>
   </svg>
 )
 
-function MessageBubble({ msg, onReact }: { msg: Msg; onReact: (id: string, emoji: string | null) => void }) {
-  const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
+const CopyIcon = () => (
+  <svg width="23" height="23" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M8.625 17.2501C8.09792 17.2501 7.6467 17.0624 7.27135 16.6871C6.89601 16.3117 6.70833 15.8605 6.70833 15.3334V3.83341C6.70833 3.30633 6.89601 2.85512 7.27135 2.47977C7.6467 2.10442 8.09792 1.91675 8.625 1.91675H17.25C17.7771 1.91675 18.2283 2.10442 18.6036 2.47977C18.979 2.85512 19.1667 3.30633 19.1667 3.83341V15.3334C19.1667 15.8605 18.979 16.3117 18.6036 16.6871C18.2283 17.0624 17.7771 17.2501 17.25 17.2501H8.625ZM8.625 15.3334H17.25V3.83341H8.625V15.3334ZM4.79167 21.0834C4.26458 21.0834 3.81337 20.8957 3.43802 20.5204C3.06267 20.145 2.875 19.6938 2.875 19.1667V6.70841C2.875 6.43689 2.96684 6.20928 3.15052 6.0256C3.3342 5.84192 3.56181 5.75008 3.83333 5.75008C4.10486 5.75008 4.33247 5.84192 4.51615 6.0256C4.69983 6.20928 4.79167 6.43689 4.79167 6.70841V19.1667H14.375C14.6465 19.1667 14.8741 19.2586 15.0578 19.4423C15.2415 19.6259 15.3333 19.8536 15.3333 20.1251C15.3333 20.3966 15.2415 20.6242 15.0578 20.8079C14.8741 20.9916 14.6465 21.0834 14.375 21.0834H4.79167Z"/>
+  </svg>
+)
 
-  useEffect(() => {
-    if (!open) return
-    function onOutside(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
-    }
-    document.addEventListener('click', onOutside)
-    return () => document.removeEventListener('click', onOutside)
-  }, [open])
+interface BubbleProps {
+  msg: Msg
+  isMe: boolean
+  isOpen: boolean
+  isDimmed: boolean
+  onTogglePopup: (e: React.MouseEvent) => void
+  onReact: (id: string, emoji: string | null) => void
+}
 
-  function handleReact(emoji: string) {
+function Bubble({ msg, isMe, isOpen, isDimmed, onTogglePopup, onReact }: BubbleProps) {
+  const sameEmoji = msg.myReaction && msg.partnerReaction && msg.myReaction === msg.partnerReaction
+  const hasReactions = !!(msg.myReaction || msg.partnerReaction)
+
+  function handleReact(emoji: string, e: React.MouseEvent) {
+    e.stopPropagation()
     onReact(msg.id, msg.myReaction === emoji ? null : emoji)
-    setOpen(false)
   }
 
-  const trigger = (
-    <button
-      className={`react-trigger${msg.myReaction ? ' active' : ''}`}
-      onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
-    >
-      {msg.myReaction ?? <SmileyIcon />}
-      {msg.partnerReaction && <div className="their-reaction">{msg.partnerReaction}</div>}
-    </button>
-  )
-
   return (
-    <div className={`bubble-main${msg.myReaction ? ' reacted' : ''}`} ref={ref}>
+    <div
+      className={`bubble${isMe ? ' me' : ''}${isDimmed ? ' dimmed' : ''}`}
+      onClick={onTogglePopup}
+      onContextMenu={onTogglePopup}
+    >
       <span className={isEmojiOnly(msg.text) ? 'emoji-only' : ''}>{msg.text}</span>
-      {trigger}
-      <div className={`reactions-popup${open ? ' open' : ''}`}>
-        {REACTIONS.map(emoji => (
-          <button
-            key={emoji}
-            className={`react-btn${msg.myReaction === emoji ? ' active' : ''}`}
-            onClick={e => { e.stopPropagation(); handleReact(emoji) }}
-          >
-            {emoji}
+
+      {hasReactions && (
+        <div className={`reactions_display${isOpen ? ' hidden' : ''}`}>
+          <div className="reactions">
+            {sameEmoji ? (
+              <div className="reaction">{msg.myReaction} 2</div>
+            ) : (
+              <>
+                {msg.partnerReaction && <div className="reaction their">{msg.partnerReaction}</div>}
+                {msg.myReaction && <div className="reaction mine">{msg.myReaction}</div>}
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div className={`popup${isOpen ? ' open' : ''}`}>
+        <div className="reactions_bar">
+          {EMOJIS.map(emoji => (
+            <button
+              key={emoji}
+              className={`react-btn${msg.myReaction === emoji ? ' active' : ''}`}
+              onClick={e => handleReact(emoji, e)}
+            >
+              {emoji}
+            </button>
+          ))}
+        </div>
+        <div className="actions_bar">
+          <button className="action_btn" onClick={e => e.stopPropagation()}>
+            <ReplyIcon /><div>Reply</div>
           </button>
-        ))}
+          <button className="action_btn" onClick={e => e.stopPropagation()}>
+            <CopyIcon /><div>Copy</div>
+          </button>
+        </div>
       </div>
     </div>
   )
 }
 
 export default function ChattingScreen({ messages, matchTime, isTyping, partnerLeft, onFindNext, onReact }: Props) {
+  const [openPopupId, setOpenPopupId] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
+
+  // Close all popups on outside click
+  useEffect(() => {
+    function handleDocClick() { setOpenPopupId(null) }
+    document.addEventListener('click', handleDocClick)
+    return () => document.removeEventListener('click', handleDocClick)
+  }, [])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, partnerLeft])
+
+  function togglePopup(msgId: string, e: React.MouseEvent) {
+    e.preventDefault()
+    e.stopPropagation()
+    setOpenPopupId(prev => prev === msgId ? null : msgId)
+  }
+
+  function handleReact(msgId: string, emoji: string | null) {
+    setOpenPopupId(null)
+    onReact(msgId, emoji)
+  }
 
   return (
     <div className="chat_area" style={{ flexGrow: 1, height: '100%' }}>
@@ -104,7 +148,15 @@ export default function ChattingScreen({ messages, matchTime, isTyping, partnerL
       {toGroups(messages).map((g, i) => (
         <div key={i} className={`group ${g.fromMe ? 'me' : 'match'}`}>
           {g.messages.map(msg => (
-            <MessageBubble key={msg.id} msg={msg} onReact={onReact} />
+            <Bubble
+              key={msg.id}
+              msg={msg}
+              isMe={g.fromMe}
+              isOpen={openPopupId === msg.id}
+              isDimmed={openPopupId !== null && openPopupId !== msg.id}
+              onTogglePopup={e => togglePopup(msg.id, e)}
+              onReact={handleReact}
+            />
           ))}
         </div>
       ))}
