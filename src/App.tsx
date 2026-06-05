@@ -5,6 +5,7 @@ import StartScreen from './components/StartScreen'
 import SearchingScreen from './components/SearchingScreen'
 import ChattingScreen from './components/ChattingScreen'
 import Chatbox from './components/Chatbox'
+import LiveIndicator from './components/LiveIndicator'
 
 type Screen = 'start' | 'searching' | 'chat'
 type FilterGender = 'male' | 'female' | 'any'
@@ -27,6 +28,7 @@ export default function App() {
   const [matchTime, setMatchTime]         = useState('')
   const [notice, setNotice]               = useState<string | null>(null)
   const [isPartnerTyping, setIsPartnerTyping] = useState(false)
+  const [onlineCount, setOnlineCount]         = useState(0)
   const [partnerLeft, setPartnerLeft]     = useState(false)
   const typingClearRef                    = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -63,24 +65,30 @@ export default function App() {
       typingClearRef.current = setTimeout(() => setIsPartnerTyping(false), 2000)
     }
 
+    function onConnectedCount({ count }: { count: number }) {
+      setOnlineCount(count)
+    }
+
     function onError({ code, message }: { code: string; message: string }) {
       console.warn(`[socket error] ${code}: ${message}`)
     }
 
-    socket.on('searching',       onSearching)
-    socket.on('matched',         onMatched)
-    socket.on('message',         onMessage)
-    socket.on('partner_left',    onPartnerLeft)
-    socket.on('partner_typing',  onPartnerTyping)
-    socket.on('error',           onError)
+    socket.on('searching',         onSearching)
+    socket.on('matched',           onMatched)
+    socket.on('message',           onMessage)
+    socket.on('partner_left',      onPartnerLeft)
+    socket.on('partner_typing',    onPartnerTyping)
+    socket.on('connected_count',   onConnectedCount)
+    socket.on('error',             onError)
 
     return () => {
-      socket.off('searching',      onSearching)
-      socket.off('matched',        onMatched)
-      socket.off('message',        onMessage)
-      socket.off('partner_left',   onPartnerLeft)
-      socket.off('partner_typing', onPartnerTyping)
-      socket.off('error',          onError)
+      socket.off('searching',        onSearching)
+      socket.off('matched',          onMatched)
+      socket.off('message',          onMessage)
+      socket.off('partner_left',     onPartnerLeft)
+      socket.off('partner_typing',   onPartnerTyping)
+      socket.off('connected_count',  onConnectedCount)
+      socket.off('error',            onError)
     }
   }, [])
 
@@ -141,6 +149,8 @@ export default function App() {
   }
 
   return (
+    <>
+    <LiveIndicator count={onlineCount} />
     <main className={mainClass[screen]}>
       <Header
         filterOpen={filterOpen}
@@ -169,5 +179,6 @@ export default function App() {
 
       <Chatbox onSend={handleSend} onTyping={handleTyping} canSend={screen === 'chat'} />
     </main>
+    </>
   )
 }

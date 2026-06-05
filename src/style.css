@@ -637,3 +637,24 @@ button{
         }
     }
 }
+
+.live_indicator{
+    position: absolute;
+    right: 24px;
+    top: 24px;
+    padding: 9px 12px;
+    padding-right: 16px;
+    border-radius: 9999px;
+    background-color: rgb(13, 207, 83, 0.25);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #0DCF53;
+}
+
+.live_indicator .dot{
+    width: 8px;
+    height: 8px;
+    border-radius: 8px;
+    background-color: #0DCF53;
+}
