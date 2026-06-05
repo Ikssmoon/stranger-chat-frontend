@@ -728,12 +728,18 @@ button{
     .popup{
         position: absolute;
         left: calc(100% + 8px);
-        display: none;
+        display: flex;
         flex-direction: column;
         z-index: 2;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .3s;
+        user-select: none;
 
         &.open {
-            display: flex;
+            opacity: 1;
+            pointer-events: all;
+            user-select: unset;
 
             .reactions_bar{
                 opacity: 1;
@@ -788,7 +794,6 @@ button{
             -webkit-backdrop-filter: blur(10px);
             display: flex;
             flex-direction: column;
-            user-select: none;
             opacity: 0;
             top: 8px;
             transition: .3s;
