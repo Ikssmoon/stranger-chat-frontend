@@ -73,7 +73,10 @@ function Bubble({ msg, isMe, isOpen, isDimmed, onTogglePopup, onReact }: BubbleP
         <div className={`reactions_display${isOpen ? ' hidden' : ''}`}>
           <div className="reactions">
             {sameEmoji ? (
-              <div className="reaction">{msg.myReaction} 2</div>
+              <>
+                <div className="reaction">{msg.myReaction}</div>
+                <div className="counter">2</div>
+              </>
             ) : (
               <>
                 {msg.partnerReaction && <div className="reaction their">{msg.partnerReaction}</div>}
