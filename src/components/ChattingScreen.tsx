@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Msg } from '../types'
+import { useLang } from '../contexts/LangContext'
 
 interface Props {
   messages: Msg[]
@@ -61,6 +62,7 @@ function MessageItem({
   msg, isContainer, isPopupOpen, isDimmed, copyLabel,
   onFirstClick, onTogglePopup, onReact, onReply, onCopy,
 }: MessageItemProps) {
+  const { t } = useLang()
   const reactions = reactionsText(msg)
 
   // Plain .message — not yet promoted to container
@@ -117,7 +119,7 @@ function MessageItem({
           </div>
           <div className="actions_bar">
             <button className="action_btn" onClick={onReply}>
-              {REPLAY_SVG}<div>Replay</div>
+              {REPLAY_SVG}<div>{t('chat.replay')}</div>
             </button>
             <button className="action_btn" onClick={onCopy}>
               {COPY_SVG}<div>{copyLabel}</div>
@@ -132,6 +134,7 @@ function MessageItem({
 export default function ChattingScreen({
   messages, matchTime, isTyping, partnerLeft, onFindNext, onReact, onReply,
 }: Props) {
+  const { t } = useLang()
   // Set of message ids that have been promoted to containers (popup ever opened)
   const [containerIds, setContainerIds] = useState<Set<string>>(new Set())
   const [openPopupId, setOpenPopupId] = useState<string | null>(null)
@@ -153,6 +156,15 @@ export default function ChattingScreen({
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, isTyping, partnerLeft])
+
+  useEffect(() => {
+    if (!partnerLeft) return
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Enter') onFindNext()
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [partnerLeft, onFindNext])
 
   function handleFirstClick(msgId: string, e: React.MouseEvent) {
     e.preventDefault()
@@ -191,7 +203,7 @@ export default function ChattingScreen({
     <div className="chat_area">
       {!partnerLeft && (
         <div className="match-found-container">
-          <h2>Match found, Start conversation quickly</h2>
+          <h2>{t('chat.matchFound')}</h2>
           <div className="time"><span>{matchTime}</span></div>
         </div>
       )}
@@ -205,7 +217,7 @@ export default function ChattingScreen({
               isContainer={isContainer(msg)}
               isPopupOpen={openPopupId === msg.id}
               isDimmed={openPopupId !== null && openPopupId !== msg.id}
-              copyLabel={copyingId === msg.id ? 'Copied!' : 'Copy'}
+              copyLabel={copyingId === msg.id ? t('chat.copied') : t('chat.copy')}
               onFirstClick={e => handleFirstClick(msg.id, e)}
               onTogglePopup={e => handleTogglePopup(msg.id, e)}
               onReact={(emoji, e) => handleReact(msg, emoji, e)}
@@ -217,19 +229,19 @@ export default function ChattingScreen({
       ))}
 
       {isTyping && !partnerLeft && (
-        <div className="typing-indicator">
+        <div className="typing-indicator" ref={bottomRef}>
           <span /><span /><span />
         </div>
       )}
 
       {partnerLeft && (
-        <div className="they_left_bubble">
-          <span>Partner skipped or disconnected</span>
-          <button className="btn" onClick={onFindNext}>Find next</button>
+        <div className="they_left_bubble" ref={bottomRef}>
+          <span>{t('chat.partnerLeft')}</span>
+          <button className="btn" onClick={onFindNext}>{t('chat.findNext')}</button>
         </div>
       )}
 
-      <div ref={bottomRef} />
+      {!isTyping && !partnerLeft && <div ref={bottomRef} style={{ display: 'none' }} />}
     </div>
   )
 }

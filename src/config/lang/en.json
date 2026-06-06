@@ -1,0 +1,61 @@
+{
+  "live": {
+    "online": "Online"
+  },
+  "header": {
+    "filterTooltip": "Filter",
+    "findNext": "Find next",
+    "blockTooltip": "Block",
+    "leaveTooltip": "Turn off",
+    "iAm": "I am",
+    "lookingFor": "Looking for",
+    "any": "Any"
+  },
+  "start": {
+    "headline": "Strangers are waiting",
+    "cta": "Let's start"
+  },
+  "searching": {
+    "label": "Did you know?",
+    "status": "Searching",
+    "quotes": [
+      "humans can form a first impression in under 100 milliseconds",
+      "talking to strangers is proven to improve your mood",
+      "loneliness activates the same brain region as physical pain",
+      "eye contact increases feelings of connection even with strangers",
+      "the average person meets around 80,000 people in their lifetime",
+      "strangers are more likely to be honest with each other than friends",
+      "the human brain can recognize a familiar face in just 380 milliseconds",
+      "people who talk to strangers report higher daily happiness levels",
+      "your voice changes slightly depending on who you are talking to",
+      "humans are the only species that blushes",
+      "the average person spends 70% of their waking hours communicating",
+      "silence longer than 4 seconds in a conversation causes anxiety in both people",
+      "laughter is 30 times more likely to occur in social situations than alone",
+      "the average conversation lasts around 7 minutes before a natural pause",
+      "people unconsciously mirror the body language of whoever they talk to",
+      "hearing your own name activates a unique region of the brain",
+      "humans can detect over 10,000 different facial expressions",
+      "a genuine smile uses 17 muscles, a fake one uses 43",
+      "the feeling of being watched is so strong the brain has a dedicated neural circuit for it",
+      "people reveal more personal information in text than face to face",
+      "the brain releases oxytocin during any positive social interaction",
+      "humans are naturally wired to cooperate — it releases the same reward as food",
+      "the average person tells 1 to 2 lies per day without realizing it",
+      "two strangers can feel deeply connected after 36 specific questions",
+      "the sound of a human voice can reduce cortisol levels within seconds"
+    ]
+  },
+  "chat": {
+    "matchFound": "Match found, Start conversation quickly",
+    "partnerLeft": "Partner skipped or disconnected",
+    "findNext": "Find next",
+    "replay": "Replay",
+    "copy": "Copy",
+    "copied": "Copied!"
+  },
+  "chatbox": {
+    "placeholder": "Type anything...",
+    "replaying": "Replaying"
+  }
+}

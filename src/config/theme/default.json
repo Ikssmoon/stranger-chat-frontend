@@ -1,0 +1,23 @@
+{
+  "--bg-primary": "#0A0A0A",
+  "--bg-slight": "rgba(255, 255, 255, 0.03)",
+  "--bg-secondary": "rgba(255, 255, 255, 0.05)",
+  "--bg-tertiary": "rgba(255, 255, 255, 0.10)",
+  "--bg-highlight": "#FFFFFF",
+  "--tx-primary": "rgba(255, 255, 255, 0.90)",
+  "--tx-secondary": "rgba(255, 255, 255, 0.50)",
+  "--stroke-primary": "rgba(255, 255, 255, 0.10)",
+  "--brand-primary": "#1164FF",
+  "--brand-50": "rgba(17, 100, 255, 0.50)",
+  "--brand-25": "rgba(17, 100, 255, 0.25)",
+  "--warning": "#FF5811",
+  "--warning-50": "rgba(255, 88, 17, 0.50)",
+  "--warning-25": "rgba(255, 88, 17, 0.25)",
+  "--danger": "#D50101",
+  "--danger-50": "rgba(228, 28, 28, 0.50)",
+  "--danger-25": "rgba(228, 28, 28, 0.25)",
+  "--radius-main": "32px",
+  "--radius-pill": "9999px",
+  "--font-sans": "'Inter', sans-serif",
+  "--font-serif": "'Source Serif 4', serif"
+}
