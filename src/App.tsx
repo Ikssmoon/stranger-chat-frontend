@@ -19,20 +19,24 @@ const mainClass: Record<Screen, string> = {
   chat:      'chat_area-show',
 }
 
-export default function App() {
-  const [screen, setScreen]       = useState<Screen>('start')
-  const [iAm, setIAm]             = useState<FilterGender>('any')
-  const [lookingFor, setLookingFor] = useState<FilterGender>('any')
-  const [filterOpen, setFilterOpen] = useState(true)
-  const [messages, setMessages]   = useState<Msg[]>([])
-  const [matchTime, setMatchTime]         = useState('')
-  const [notice, setNotice]               = useState<string | null>(null)
-  const [isPartnerTyping, setIsPartnerTyping] = useState(false)
-  const [onlineCount, setOnlineCount]         = useState(0)
-  const [partnerLeft, setPartnerLeft]     = useState(false)
-  const typingClearRef                    = useRef<ReturnType<typeof setTimeout> | null>(null)
+function newMsg(partial: Omit<Msg, 'replaid' | 'myReaction' | 'theirReaction'> & { replaid?: string }): Msg {
+  return { replaid: '', myReaction: '', theirReaction: '', ...partial }
+}
 
-  // ── socket lifecycle ──────────────────────────────────────────────────────
+export default function App() {
+  const [screen, setScreen]             = useState<Screen>('start')
+  const [iAm, setIAm]                   = useState<FilterGender>('any')
+  const [lookingFor, setLookingFor]     = useState<FilterGender>('any')
+  const [filterOpen, setFilterOpen]     = useState(true)
+  const [messages, setMessages]         = useState<Msg[]>([])
+  const [matchTime, setMatchTime]       = useState('')
+  const [isPartnerTyping, setIsPartnerTyping] = useState(false)
+  const [onlineCount, setOnlineCount]   = useState(0)
+  const [partnerLeft, setPartnerLeft]   = useState(false)
+  const [pendingReply, setPendingReply] = useState<string | null>(null)
+  const typingClearRef                  = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // ── socket listeners ──────────────────────────────────────────────────────
   useEffect(() => {
     function onSearching() {
       setScreen('searching')
@@ -42,27 +46,26 @@ export default function App() {
       const now = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
       setMatchTime(now)
       setMessages([])
-      setNotice(null)
       setFilterOpen(false)
       setIsPartnerTyping(false)
       setPartnerLeft(false)
+      setPendingReply(null)
       setScreen('chat')
     }
 
     function onMessage({ text, id }: { text: string; id: string }) {
-      setMessages(prev => [...prev, { id, text, fromMe: false }])
+      setMessages(prev => [...prev, newMsg({ id, text, direction: 'incoming' })])
     }
 
     function onPartnerReacted({ messageId, emoji }: { messageId: string; emoji: string | null }) {
       setMessages(prev => prev.map(m =>
-        m.id === messageId ? { ...m, partnerReaction: emoji ?? undefined } : m
+        m.id === messageId ? { ...m, theirReaction: emoji ?? '' } : m
       ))
     }
 
     function onPartnerLeft() {
       setIsPartnerTyping(false)
       setPartnerLeft(true)
-      // Stay on chat screen — user sees the bubble and decides when to search again
     }
 
     function onPartnerTyping() {
@@ -79,24 +82,24 @@ export default function App() {
       console.warn(`[socket error] ${code}: ${message}`)
     }
 
-    socket.on('searching',         onSearching)
-    socket.on('matched',           onMatched)
-    socket.on('message',           onMessage)
-    socket.on('partner_left',      onPartnerLeft)
-    socket.on('partner_typing',    onPartnerTyping)
-    socket.on('connected_count',   onConnectedCount)
-    socket.on('partner_reacted',   onPartnerReacted)
-    socket.on('error',             onError)
+    socket.on('searching',       onSearching)
+    socket.on('matched',         onMatched)
+    socket.on('message',         onMessage)
+    socket.on('partner_left',    onPartnerLeft)
+    socket.on('partner_typing',  onPartnerTyping)
+    socket.on('connected_count', onConnectedCount)
+    socket.on('partner_reacted', onPartnerReacted)
+    socket.on('error',           onError)
 
     return () => {
-      socket.off('searching',        onSearching)
-      socket.off('matched',          onMatched)
-      socket.off('message',          onMessage)
-      socket.off('partner_left',     onPartnerLeft)
-      socket.off('partner_typing',   onPartnerTyping)
-      socket.off('connected_count',  onConnectedCount)
-      socket.off('partner_reacted',  onPartnerReacted)
-      socket.off('error',            onError)
+      socket.off('searching',       onSearching)
+      socket.off('matched',         onMatched)
+      socket.off('message',         onMessage)
+      socket.off('partner_left',    onPartnerLeft)
+      socket.off('partner_typing',  onPartnerTyping)
+      socket.off('connected_count', onConnectedCount)
+      socket.off('partner_reacted', onPartnerReacted)
+      socket.off('error',           onError)
     }
   }, [])
 
@@ -110,9 +113,9 @@ export default function App() {
     setFilterOpen(false)
     setMessages([])
     setPartnerLeft(false)
+    setPendingReply(null)
     socket.emit('set_filter', { iAm: toSocket(iAm), lookingFor: toSocket(lookingFor) })
     if (partnerLeft) {
-      // Partner already left — server session is idle, skip straight to start_search
       socket.emit('start_search')
     } else if (screen === 'chat') {
       socket.emit('skip')
@@ -128,6 +131,7 @@ export default function App() {
   function handleBlock() {
     setFilterOpen(false)
     setMessages([])
+    setPendingReply(null)
     socket.emit('set_filter', { iAm: toSocket(iAm), lookingFor: toSocket(lookingFor) })
     socket.emit('block')
     setScreen('searching')
@@ -137,22 +141,25 @@ export default function App() {
     socket.emit('leave')
     setScreen('start')
     setMessages([])
-    setNotice(null)
     setFilterOpen(false)
     setPartnerLeft(false)
+    setPendingReply(null)
   }
 
   function handleSend(text: string) {
     if (screen !== 'chat') return
     const id = crypto.randomUUID()
+    const replaid = pendingReply || ''
     socket.emit('send_message', { text, id })
-    setMessages(prev => [...prev, { id, text, fromMe: true }])
+    setMessages(prev => [...prev, newMsg({ id, text, direction: 'outgoing', replaid })])
+    setPendingReply(null)
   }
 
-  function handleReact(msgId: string, emoji: string | null) {
-    socket.emit('react', { messageId: msgId, emoji })
+  function handleReact(msgId: string, emoji: string) {
+    // emoji = '' means clear
+    socket.emit('react', { messageId: msgId, emoji: emoji || null })
     setMessages(prev => prev.map(m =>
-      m.id === msgId ? { ...m, myReaction: emoji ?? undefined } : m
+      m.id === msgId ? { ...m, myReaction: emoji } : m
     ))
   }
 
@@ -160,42 +167,45 @@ export default function App() {
     if (screen === 'chat') socket.emit('typing')
   }
 
-  function handleFilterToggle() {
-    setFilterOpen(o => !o)
-  }
-
   return (
     <>
-    <LiveIndicator count={onlineCount} />
-    <main className={mainClass[screen]}>
-      <Header
-        filterOpen={filterOpen}
-        iAm={iAm}
-        lookingFor={lookingFor}
-        dimmed={filterOpen}
-        onFilterToggle={handleFilterToggle}
-        onIAmChange={setIAm}
-        onLookingForChange={setLookingFor}
-        onFindNext={handleFindNext}
-        onBlock={handleBlock}
-        onLeave={handleLeave}
-      />
-
-      {screen === 'start'     && <StartScreen onStart={handleStart} />}
-      {screen === 'searching' && <SearchingScreen notice={notice} />}
-      {screen === 'chat' && (
-        <ChattingScreen
-          messages={messages}
-          matchTime={matchTime}
-          isTyping={isPartnerTyping}
-          partnerLeft={partnerLeft}
+      <LiveIndicator count={onlineCount} />
+      <main className={mainClass[screen]}>
+        <Header
+          filterOpen={filterOpen}
+          iAm={iAm}
+          lookingFor={lookingFor}
+          dimmed={filterOpen}
+          onFilterToggle={() => setFilterOpen(o => !o)}
+          onIAmChange={setIAm}
+          onLookingForChange={setLookingFor}
           onFindNext={handleFindNext}
-          onReact={handleReact}
+          onBlock={handleBlock}
+          onLeave={handleLeave}
         />
-      )}
 
-      <Chatbox onSend={handleSend} onTyping={handleTyping} canSend={screen === 'chat'} />
-    </main>
+        {screen === 'start'     && <StartScreen onStart={handleStart} />}
+        {screen === 'searching' && <SearchingScreen notice={null} />}
+        {screen === 'chat' && (
+          <ChattingScreen
+            messages={messages}
+            matchTime={matchTime}
+            isTyping={isPartnerTyping}
+            partnerLeft={partnerLeft}
+            onFindNext={handleFindNext}
+            onReact={handleReact}
+            onReply={setPendingReply}
+          />
+        )}
+
+        <Chatbox
+          onSend={handleSend}
+          onTyping={handleTyping}
+          canSend={screen === 'chat'}
+          pendingReply={pendingReply}
+          onClearReply={() => setPendingReply(null)}
+        />
+      </main>
     </>
   )
 }
