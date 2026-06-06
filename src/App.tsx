@@ -53,8 +53,8 @@ export default function App() {
       setScreen('chat')
     }
 
-    function onMessage({ text, id, replaid }: { text: string; id: string; replaid?: string }) {
-      setMessages(prev => [...prev, newMsg({ id, text, direction: 'incoming', replaid: replaid || '' })])
+    function onMessage({ text, id, replyTo }: { text: string; id: string; replyTo?: string }) {
+      setMessages(prev => [...prev, newMsg({ id, text, direction: 'incoming', replaid: replyTo || '' })])
     }
 
     function onPartnerReacted({ messageId, emoji }: { messageId: string; emoji: string | null }) {
@@ -150,7 +150,7 @@ export default function App() {
     if (screen !== 'chat') return
     const id = crypto.randomUUID()
     const replaid = pendingReply || ''
-    socket.emit('send_message', { text, id, replaid })
+    socket.emit('send_message', { text, id, replyTo: replaid })
     setMessages(prev => [...prev, newMsg({ id, text, direction: 'outgoing', replaid })])
     setPendingReply(null)
   }
