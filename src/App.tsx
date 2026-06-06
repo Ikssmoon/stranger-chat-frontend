@@ -54,7 +54,9 @@ export default function App() {
     }
 
     function onMessage({ text, id, replyTo }: { text: string; id: string; replyTo?: string }) {
-      setMessages(prev => [...prev, newMsg({ id, text, direction: 'incoming', replaid: replyTo || '' })])
+      const msg = newMsg({ id, text, direction: 'incoming', replaid: replyTo || '' })
+      console.log('[onMessage] full msg object before state:', msg)
+      setMessages(prev => [...prev, msg])
     }
 
     function onPartnerReacted({ messageId, emoji }: { messageId: string; emoji: string | null }) {
