@@ -53,9 +53,17 @@ export default function App() {
       setScreen('chat')
     }
 
-    function onMessage(data: { text: string; id: string; replyTo?: string }) {
-      console.log('[onMessage] raw socket data:', JSON.stringify(data))
-      const msg = newMsg({ id: data.id, text: data.text, direction: 'incoming', replaid: data.replyTo ?? '' })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    function onMessage(raw: any) {
+      console.log('[onMessage] raw:', JSON.stringify(raw))
+      const msg: Msg = {
+        id:           String(raw.id   ?? ''),
+        text:         String(raw.text ?? ''),
+        direction:    'incoming',
+        replaid:      String(raw.replyTo ?? ''),
+        myReaction:   '',
+        theirReaction: '',
+      }
       console.log('[onMessage] msg.replaid:', msg.replaid)
       setMessages(prev => [...prev, msg])
     }
