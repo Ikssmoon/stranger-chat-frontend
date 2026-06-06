@@ -53,9 +53,10 @@ export default function App() {
       setScreen('chat')
     }
 
-    function onMessage({ text, id, replyTo }: { text: string; id: string; replyTo?: string }) {
-      const msg = newMsg({ id, text, direction: 'incoming', replaid: replyTo || '' })
-      console.log('[onMessage] full msg object before state:', msg)
+    function onMessage(data: { text: string; id: string; replyTo?: string }) {
+      console.log('[onMessage] raw socket data:', JSON.stringify(data))
+      const msg = newMsg({ id: data.id, text: data.text, direction: 'incoming', replaid: data.replyTo ?? '' })
+      console.log('[onMessage] msg.replaid:', msg.replaid)
       setMessages(prev => [...prev, msg])
     }
 
