@@ -80,7 +80,7 @@ export default function Chatbox({ onSend, onTyping, canSend, pendingReply, onCle
 
     // Live update timer chip if timer bar is open — mirrors mockup script.js
     if (timerOpen) {
-      const match = el.value.match(/^\/brb (\d+)sec$/)
+      const match = el.value.match(/^\/timer (\d+)(?:sec)?$/)
       if (match) {
         const secs = parseInt(match[1])
         if (secs > 0 && secs <= 600) setTimerChipTime(formatTime(secs))
@@ -125,7 +125,7 @@ export default function Chatbox({ onSend, onTyping, canSend, pendingReply, onCle
   function handlePresetChange(seconds: number, value: string) {
     setSelectedPreset(value)
     setTimerChipTime(formatTime(seconds))
-    setTextarea(`/brb ${seconds}sec`)
+    setTextarea(`/timer ${seconds}sec`)
     textareaRef.current?.focus()
   }
 

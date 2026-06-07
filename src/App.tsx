@@ -7,6 +7,7 @@ import ChattingScreen from './components/ChattingScreen'
 import Chatbox from './components/Chatbox'
 import LiveIndicator from './components/LiveIndicator'
 import type { Msg } from './types'
+import { detectSocialLink } from './utils/social'
 
 type Screen = 'start' | 'searching' | 'chat'
 type FilterGender = 'male' | 'female' | 'any'
@@ -93,6 +94,31 @@ export default function App() {
       console.warn(`[socket error] ${code}: ${message}`)
     }
 
+    function onSocialRequest({ platform }: { platform: string }) {
+      setMessages(prev => [...prev, {
+        id: crypto.randomUUID(), text: '', direction: 'incoming',
+        replaid: '', myReaction: '', theirReaction: '',
+        linkState: 'pending' as const, linkPlatform: platform,
+      }])
+    }
+
+    function onSocialReveal({ yourUrl, theirUrl }: { yourUrl: string; theirUrl: string }) {
+      setMessages(prev => {
+        let outDone = false, inDone = false
+        return prev.map(m => {
+          if (!outDone && m.direction === 'outgoing' && m.linkState === 'pending') {
+            outDone = true
+            return { ...m, linkState: 'revealed' as const, linkUrl: yourUrl }
+          }
+          if (!inDone && m.direction === 'incoming' && m.linkState === 'pending') {
+            inDone = true
+            return { ...m, linkState: 'revealed' as const, linkUrl: theirUrl }
+          }
+          return m
+        })
+      })
+    }
+
     socket.on('searching',       onSearching)
     socket.on('matched',         onMatched)
     socket.on('message',         onMessage)
@@ -101,6 +127,8 @@ export default function App() {
     socket.on('connected_count', onConnectedCount)
     socket.on('partner_reacted', onPartnerReacted)
     socket.on('error',           onError)
+    socket.on('social_request',  onSocialRequest)
+    socket.on('social_reveal',   onSocialReveal)
 
     return () => {
       socket.off('searching',       onSearching)
@@ -111,6 +139,8 @@ export default function App() {
       socket.off('connected_count', onConnectedCount)
       socket.off('partner_reacted', onPartnerReacted)
       socket.off('error',           onError)
+      socket.off('social_request',  onSocialRequest)
+      socket.off('social_reveal',   onSocialReveal)
     }
   }, [])
 
@@ -159,6 +189,19 @@ export default function App() {
 
   function handleSend(text: string) {
     if (screen !== 'chat') return
+
+    const socialPlatform = detectSocialLink(text)
+    if (socialPlatform) {
+      socket.emit('social_link', { platform: socialPlatform.name, url: text })
+      setMessages(prev => [...prev, {
+        id: crypto.randomUUID(), text, direction: 'outgoing',
+        replaid: '', myReaction: '', theirReaction: '',
+        linkState: 'pending' as const, linkPlatform: socialPlatform.name,
+      }])
+      setPendingReply(null)
+      return
+    }
+
     const id = crypto.randomUUID()
     const replaid = pendingReply || ''
     socket.emit('send_message', { text, id, replyTo: replaid })

@@ -2,6 +2,47 @@ import { useEffect, useRef, useState } from 'react'
 import type { Msg } from '../types'
 import { useLang } from '../contexts/LangContext'
 import { BRB_PATTERN, formatTime } from '../utils/brb'
+import { SOCIAL_PLATFORMS } from '../utils/social'
+
+const SOCIAL_ICON: Record<string, string> = Object.fromEntries(
+  SOCIAL_PLATFORMS.map(p => [p.name, p.icon])
+)
+
+function SocialLinkBubble({ msg, isDimmed }: { msg: Msg; isDimmed: boolean }) {
+  const icon = SOCIAL_ICON[msg.linkPlatform ?? ''] ?? ''
+  const hint = msg.direction === 'outgoing'
+    ? 'They should also send to reveal link'
+    : 'You should also send to reveal link'
+
+  return (
+    <div
+      className={`message${isDimmed ? ' dimmed' : ''}`}
+      data-direction={msg.direction}
+      data-link-state={msg.linkState}
+    >
+      <div className="link-message">
+        <div className="link-pill">
+          <img src={icon} alt={msg.linkPlatform} />
+          {msg.linkState === 'revealed' ? (
+            <a
+              className="link-url"
+              href={msg.linkUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {msg.linkUrl}
+            </a>
+          ) : (
+            <span className="link-url blurred">{msg.linkPlatform}.com/••••••••</span>
+          )}
+        </div>
+        {msg.linkState === 'pending' && (
+          <span className="link-hint">{hint}</span>
+        )}
+      </div>
+    </div>
+  )
+}
 
 interface Props {
   messages: Msg[]
@@ -71,6 +112,11 @@ function MessageItem({
 }: MessageItemProps) {
   const { t } = useLang()
   const reactions = reactionsText(msg)
+
+  // Social link bubble — no popup, no container promotion
+  if (msg.linkState) {
+    return <SocialLinkBubble msg={msg} isDimmed={isDimmed} />
+  }
 
   // BRB timer detection — mirrors renderMessage from mockup script.js
   const brbMatch = msg.text.match(BRB_PATTERN)

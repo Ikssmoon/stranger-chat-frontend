@@ -698,11 +698,16 @@ button {
             background-color: var(--warning-25);
             transition: .3s;
             cursor: pointer;
+            padding-left: 16px;
 
             .timer-chip {
                 display: flex;
                 align-items: center;
                 gap: 8px;
+
+                span {
+                    width: 48px;
+                }
             }
 
             * { fill: var(--warning); }
@@ -717,6 +722,42 @@ button {
             * { fill: var(--tx-secondary); }
 
             &:hover { background-color: var(--bg-tertiary); }
+        }
+
+        &[data-link-state] {
+            position: relative;
+            margin-bottom: 36px;
+            padding-left: 18px;
+
+            .link-pill {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+
+                .blurred { filter: blur(10px); }
+
+                img {
+                    width: 20px;
+                    height: 20px;
+                }
+            }
+
+            .link-hint {
+                position: absolute;
+                bottom: -24px;
+                font-size: 14px;
+                color: var(--tx-secondary);
+                left: 12px;
+                font-weight: 300;
+                width: max-content;
+            }
+
+            &[data-direction="outgoing"] {
+                .link-hint {
+                    left: unset;
+                    right: 12px;
+                }
+            }
         }
 
         &.dimmed {
