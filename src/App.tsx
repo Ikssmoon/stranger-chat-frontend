@@ -95,6 +95,7 @@ export default function App() {
     }
 
     function onSocialRequest({ platform }: { platform: string }) {
+      console.log('[social_request] received:', { platform })
       setMessages(prev => [...prev, {
         id: crypto.randomUUID(), text: '', direction: 'incoming',
         replaid: '', myReaction: '', theirReaction: '',
@@ -103,6 +104,7 @@ export default function App() {
     }
 
     function onSocialReveal({ yourUrl, theirUrl }: { yourUrl: string; theirUrl: string }) {
+      console.log('[social_reveal] received:', { yourUrl, theirUrl })
       setMessages(prev => {
         let outDone = false, inDone = false
         return prev.map(m => {

@@ -740,6 +740,15 @@ button {
                     width: 20px;
                     height: 20px;
                 }
+
+                a {
+                    text-decoration: none;
+                    transition: .3s;
+
+                    &:hover {
+                        text-decoration: underline;
+                    }
+                }
             }
 
             .link-hint {
@@ -753,9 +762,17 @@ button {
             }
 
             &[data-direction="outgoing"] {
-                .link-hint {
-                    left: unset;
-                    right: 12px;
+                .link-hint { left: unset; right: 12px; }
+                .link-pill a {
+                    color: var(--tx-primary);
+                    &:hover { color: var(--tx-primary); }
+                }
+            }
+
+            &[data-direction="incoming"] {
+                .link-pill a {
+                    color: var(--brand-primary);
+                    &:hover { color: #3177f9; }
                 }
             }
         }
