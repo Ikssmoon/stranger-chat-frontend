@@ -31,8 +31,10 @@ export default function Chatbox({ onSend, onTyping, canSend, pendingReply, onCle
   const [timerOpen, setTimerOpen]       = useState(false)
   const [timerChipTime, setTimerChipTime] = useState('00:00')
   const [selectedPreset, setSelectedPreset] = useState('')
+  const [focused, setFocused]           = useState(false)
   const textareaRef                     = useRef<HTMLTextAreaElement>(null)
   const typingTimeout                   = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isMobile                        = window.innerWidth <= 768
 
   // Focus textarea when reply is set
   useEffect(() => {
@@ -77,6 +79,9 @@ export default function Chatbox({ onSend, onTyping, canSend, pendingReply, onCle
     el.style.height = Math.min(el.scrollHeight, 160) + 'px'
     setDraft(el.value)
     setMultiline(el.scrollHeight > 40)
+
+    // Mobile: toggle focused to hide tools-menu when typing
+    if (isMobile) setFocused(el.value.length > 0)
 
     // Live update timer chip if timer bar is open — mirrors mockup script.js
     if (timerOpen) {
@@ -132,7 +137,8 @@ export default function Chatbox({ onSend, onTyping, canSend, pendingReply, onCle
   const sendEnabled = draft.trim() !== '' && canSend
 
   return (
-    <div className={`chatbox${pendingReply ? ' replaying' : ''}`}>
+    <div className="chatbox_holder">
+    <div className={`chatbox${pendingReply ? ' replaying' : ''}${focused ? ' focused' : ''}`}>
       <div className="replay">
         <div className="quote-header">
           <span>{t('chatbox.replaying')}</span>
@@ -151,7 +157,7 @@ export default function Chatbox({ onSend, onTyping, canSend, pendingReply, onCle
           <span>{timerChipTime}</span>
         </div>
 
-        <span>‒</span>
+        <span className="dvd">‒</span>
 
         <div className="presets-list">
           {PRESETS.map(p => (
@@ -226,6 +232,7 @@ export default function Chatbox({ onSend, onTyping, canSend, pendingReply, onCle
           </svg>
         </button>
       </div>
+    </div>
     </div>
   )
 }

@@ -456,6 +456,10 @@ button {
 
 /* Chatbox */
 
+.chatbox_holder {
+    display: contents;
+}
+
 .chatbox {
     display: flex;
     flex-direction: column;
@@ -507,9 +511,27 @@ button {
         }
 
         &.multiline {
-            flex-direction: column;
-            align-items: flex-end;
-            textarea { width: 100%; }
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: auto auto;
+            gap: 8px;
+
+            .tools-menu {
+                grid-column-start: 1;
+                grid-row-start: 2;
+            }
+
+            textarea {
+                width: 100%;
+                grid-column: span 2 / span 2;
+                grid-column-start: 1;
+                grid-row-start: 1;
+            }
+
+            .btn_send {
+                grid-row-start: 2;
+                justify-self: end;
+            }
         }
     }
 
@@ -677,8 +699,9 @@ button {
 
     .message {
         padding: 16px 22px;
-        border-radius: var(--radius-pill);
+        border-radius: 28px;
         width: max-content;
+        max-width: 420px;
         cursor: pointer;
         user-select: none;
         transition: .15s;
@@ -945,6 +968,168 @@ button {
                 .message-reactions {
                     right: calc(100% + 8px);
                     left: unset;
+                }
+            }
+        }
+    }
+}
+
+/* Mobile responsive */
+
+@media (max-width: 768px) {
+
+    :root {
+        --radius-main: 28px;
+    }
+
+    * {
+        font-size: 0.938rem;
+    }
+
+    .message-group .message[data-timer="true"] .timer-chip span {
+        width: 42px;
+    }
+
+    .live_indicator {
+        display: none;
+    }
+
+    main {
+        padding: 0;
+        gap: 0;
+
+        .header {
+            border-radius: unset;
+            border: unset;
+            border-bottom: 1px solid var(--stroke-primary);
+
+            .filter {
+                flex-direction: column;
+                gap: 12px;
+
+                .field_group {
+                    justify-content: space-between;
+                }
+
+                .i_am {
+                    padding-left: 0 !important;
+                    padding-bottom: 12px;
+                    border-bottom: 1px solid var(--stroke-primary);
+                }
+            }
+        }
+
+        .chat_area {
+            border-radius: unset;
+            border: unset;
+            border-bottom: 1px solid var(--stroke-primary);
+            padding: 12px;
+            gap: 16px;
+
+            .message-container {
+                width: 100%;
+            }
+
+            .message {
+                padding: 12px 18px;
+                max-width: calc(100% - 114px);
+                line-height: 145%;
+            }
+
+            .message-main {
+                max-width: calc(100% - 114px);
+                .message {
+                    max-width: 100%;
+                }
+            }
+
+            .reply-quote {
+                gap: 4px !important;
+                .indicator { width: 3px !important; }
+            }
+
+            .quote {
+                padding: 8px 14px !important;
+                border-radius: 10px !important;
+            }
+
+            .react-btn {
+                font-size: 22px;
+            }
+        }
+    }
+
+    .chatbox_holder {
+        display: flex;
+        flex-direction: column;
+        padding: 12px;
+        gap: 8px;
+
+        .chatbox {
+            padding: 6px;
+            transition: .3s;
+
+            .textarea {
+                position: relative;
+                padding-left: 48px;
+                transition: .3s;
+                gap: 8px;
+
+                .tools-menu {
+                    left: 0;
+                    position: absolute;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    transition: .3s;
+
+                    .tools-list {
+                        bottom: calc(100% + 12px);
+                    }
+                }
+
+                textarea {
+                    padding-left: 0;
+                }
+
+                .btn_send {
+                    width: 40px;
+                }
+            }
+
+            &.focused {
+                .textarea {
+                    padding-left: 0px;
+
+                    .tools-menu {
+                        left: -20px;
+                        opacity: 0;
+                        pointer-events: none;
+                    }
+                }
+
+                textarea {
+                    padding-left: 12px !important;
+                }
+            }
+
+            .replay {
+                border-radius: 24px;
+                padding: 12px;
+            }
+
+            .timer {
+                flex-direction: column;
+                position: relative;
+                border-radius: 24px;
+
+                .dvd {
+                    display: none;
+                }
+
+                .btn-close {
+                    position: absolute;
+                    right: 8px;
+                    top: 8px;
                 }
             }
         }
