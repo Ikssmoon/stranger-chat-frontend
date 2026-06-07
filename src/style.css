@@ -470,14 +470,14 @@ button {
         flex-direction: row;
         align-items: center;
         width: 100%;
-        gap: 8px;
+        gap: 2px;
 
         textarea {
             background: none;
             stroke: none;
             outline: none;
             border: none;
-            padding: 8.5px 12px;
+            padding: 8.5px 0px;
             resize: none;
             font-family: var(--font-sans);
             color: var(--tx-primary);
@@ -531,6 +531,141 @@ button {
     }
 
     &.replaying .replay { display: block; }
+
+    .timer {
+        padding: 12px;
+        border: 1px solid var(--bg-tertiary);
+        border-radius: 20px;
+        display: none;
+        gap: 12px;
+        align-items: center;
+
+        &.show { display: flex; }
+
+        .timer-chip {
+            padding: 12px;
+            padding-left: 8px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            height: 38px;
+            border-radius: 12px;
+            background-color: var(--warning-25);
+            transition: .3s;
+            cursor: pointer;
+            * { fill: var(--warning); }
+            &:hover { background-color: var(--warning-50); }
+        }
+
+        .presets-list {
+            flex-grow: 1;
+            display: flex;
+            gap: 6px;
+
+            input {
+                position: absolute;
+                visibility: hidden;
+            }
+
+            .btn {
+                padding: 12px;
+                display: flex;
+                gap: 8px;
+                align-items: center;
+                height: 38px;
+                border-radius: 12px;
+                background-color: var(--bg-slight);
+                transition: .3s;
+                cursor: pointer;
+                &:hover { background-color: var(--bg-tertiary); }
+            }
+
+            [type="radio"]:checked + .btn {
+                background-color: var(--bg-tertiary);
+            }
+        }
+
+        .btn-close {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border-radius: var(--radius-pill);
+            transition: .3s;
+            * { transition: .3s; }
+            &:hover {
+                background-color: var(--bg-secondary);
+                * { fill: var(--tx-primary); }
+            }
+        }
+    }
+}
+
+.tools-menu {
+    position: relative;
+
+    .tools-trigger {
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        transition: 0.3s;
+        &:hover { background-color: var(--bg-secondary); }
+
+        svg { transition: transform 0.2s ease; }
+
+        &.active {
+            background-color: var(--bg-tertiary);
+            svg {
+                transform: rotate(-45deg);
+                path { fill: var(--tx-primary); }
+            }
+        }
+    }
+
+    .tools-list {
+        position: absolute;
+        bottom: calc(100% + 12px);
+        left: -12px;
+        display: flex;
+        width: max-content;
+        flex-direction: column;
+        padding: 4px;
+        border-radius: 16px;
+        background-color: var(--bg-tertiary);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        opacity: 0;
+        user-select: none;
+        pointer-events: none;
+        transition: .3s;
+
+        &.open {
+            bottom: calc(100% + 20px);
+            opacity: 1;
+            pointer-events: unset;
+        }
+
+        .action_btn {
+            height: 38px;
+            padding-right: 16px;
+            padding-left: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: start;
+            gap: 7px;
+            color: var(--tx-secondary);
+            font-size: 15px;
+            border-radius: 12px;
+            transition: .15s;
+
+            &:hover {
+                background-color: var(--bg-secondary);
+                color: var(--tx-primary);
+                * { fill: var(--tx-primary); }
+            }
+        }
+    }
 }
 
 /* Message groups */
@@ -557,6 +692,31 @@ button {
             background-color: var(--brand-50);
             align-self: flex-end;
             &:hover { background-color: var(--brand-primary); }
+        }
+
+        &[data-timer="true"] {
+            background-color: var(--warning-25);
+            transition: .3s;
+            cursor: pointer;
+
+            .timer-chip {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            * { fill: var(--warning); }
+
+            &:hover { background-color: var(--warning-50); }
+        }
+
+        &[data-timer-done="true"] {
+            background-color: var(--bg-tertiary);
+            cursor: default;
+
+            * { fill: var(--tx-secondary); }
+
+            &:hover { background-color: var(--bg-tertiary); }
         }
 
         &.dimmed {
