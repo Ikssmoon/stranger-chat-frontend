@@ -1063,6 +1063,21 @@ button {
             padding: 12px;
             gap: 16px;
 
+            .match-found-container {
+                gap: 16px;
+
+                h2 {
+                    font-size: 18px;
+                    padding: 24px;
+                    border-radius: 12px;
+                }
+
+                .time span {
+                    font-size: 12px;
+                    padding: 0 16px;
+                }
+            }
+
             .message-container {
                 width: 100%;
             }
