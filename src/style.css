@@ -1025,6 +1025,24 @@ button {
             }
         }
 
+        .fresh {
+            border-radius: unset;
+            border: unset;
+            padding: 12px;
+            gap: 16px;
+
+            h1 { font-size: 2rem; }
+        }
+
+        .searching {
+            border-radius: unset;
+            border: unset;
+            padding: 12px;
+            gap: 16px;
+
+            h1 { font-size: 2rem; }
+        }
+
         .chat_area {
             border-radius: unset;
             border: unset;
