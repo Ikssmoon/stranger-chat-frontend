@@ -555,7 +555,13 @@ button {
             span { color: var(--tx-secondary); }
         }
 
-        p { line-height: 145%; }
+        p {
+            line-height: 145%;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
     }
 
     &.replaying .replay { display: block; }
@@ -844,6 +850,13 @@ button {
                 border: 1px solid var(--bg-tertiary);
                 color: var(--tx-secondary);
                 font-size: 14px;
+
+                p {
+                    display: -webkit-box;
+                    -webkit-line-clamp: 3;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                }
             }
         }
 

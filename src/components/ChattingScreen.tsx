@@ -175,7 +175,7 @@ function MessageItem({
       {msg.replaid && (
         <div className="reply-quote">
           <div className="indicator" />
-          <div className="quote">{msg.replaid}</div>
+          <div className="quote"><p>{msg.replaid}</p></div>
         </div>
       )}
       <div className="message-main">
