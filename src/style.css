@@ -1125,7 +1125,6 @@ button {
                 position: relative;
                 padding-left: 48px;
                 transition: .3s;
-                gap: 8px;
 
                 .tools-menu {
                     left: 0;
@@ -1137,14 +1136,6 @@ button {
                     .tools-list {
                         bottom: calc(100% + 12px);
                     }
-                }
-
-                textarea {
-                    padding-left: 0;
-                }
-
-                .btn_send {
-                    width: 40px;
                 }
             }
 
@@ -1161,6 +1152,18 @@ button {
 
                 textarea {
                     padding-left: 12px !important;
+                }
+            }
+
+            .textarea {
+                gap: 8px;
+
+                textarea {
+                    padding-left: 0;
+                }
+
+                .btn_send {
+                    width: 40px;
                 }
             }
 
