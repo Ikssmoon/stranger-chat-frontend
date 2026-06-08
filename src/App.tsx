@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { socket } from './socket'
+import { socket, visitorId } from './socket'
 import Header from './components/Header'
 import StartScreen from './components/StartScreen'
 import SearchingScreen from './components/SearchingScreen'
@@ -145,6 +145,21 @@ export default function App() {
       socket.off('social_reveal',   onSocialReveal)
     }
   }, [])
+
+  // ── client error tracking ─────────────────────────────────────────────────
+  useEffect(() => {
+    function handleWindowError(event: ErrorEvent) {
+      socket.emit('client_error', {
+        message: event.message,
+        stack: (event.error as Error | null)?.stack ?? '',
+        pageState: screen,
+        userAgent: navigator.userAgent,
+        visitorId,
+      })
+    }
+    window.addEventListener('error', handleWindowError)
+    return () => window.removeEventListener('error', handleWindowError)
+  }, [screen])
 
   // ── action handlers ───────────────────────────────────────────────────────
   function handleStart() {
