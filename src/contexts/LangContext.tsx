@@ -27,7 +27,7 @@ function resolve(data: LangData, key: string): unknown {
 }
 
 export function LangProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState(() => localStorage.getItem('lang') ?? 'en')
+  const [lang, setLangState] = useState(() => localStorage.getItem('lang') ?? 'ge')
   const [data, setData] = useState<LangData>({})
 
   useEffect(() => {

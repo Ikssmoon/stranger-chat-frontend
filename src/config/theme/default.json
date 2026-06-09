@@ -18,6 +18,8 @@
   "--danger-25": "rgba(228, 28, 28, 0.25)",
   "--radius-main": "32px",
   "--radius-pill": "9999px",
-  "--font-sans": "'Inter', sans-serif",
-  "--font-serif": "'Source Serif 4', serif"
+  "--font-sans": "'Noto Sans Georgian', 'Inter', sans-serif",
+  "--font-serif": "'Noto Serif Georgian', 'Source Serif 4', serif",
+  "--font-sans-geo": "'Noto Sans Georgian', sans-serif",
+  "--font-serif-geo": "'Noto Serif Georgian', serif"
 }
