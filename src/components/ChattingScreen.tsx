@@ -231,7 +231,7 @@ export default function ChattingScreen({
 
   // Messages with a replaid are always containers
   function isContainer(msg: Msg) {
-    return msg.replaid !== '' || containerIds.has(msg.id)
+    return msg.replaid !== '' || containerIds.has(msg.id) || !!msg.theirReaction
   }
 
   // Close all popups on outside click
