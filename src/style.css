@@ -1,25 +1,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&family=Noto+Serif+Georgian:wght@100..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap');
 
 :root {
-  --bg-primary: #0A0A0A;
-  --bg-slight: rgba(255, 255, 255, 0.03);
-  --bg-secondary: rgba(255, 255, 255, 0.05);
-  --bg-tertiary: rgba(255, 255, 255, 0.10);
-  --bg-highlight: #FFFFFF;
-  --tx-primary: rgba(255, 255, 255, 0.90);
-  --tx-secondary: rgba(255, 255, 255, 0.50);
-  --stroke-primary: rgba(255, 255, 255, 0.10);
-  --brand-primary: #1164FF;
-  --brand-50: rgba(17, 100, 255, 0.50);
-  --brand-25: rgba(17, 100, 255, 0.25);
-  --warning: #FF5811;
-  --warning-50: rgba(255, 88, 17, 0.50);
-  --warning-25: rgba(255, 88, 17, 0.25);
-  --danger: #D50101;
-  --danger-50: rgba(228, 28, 28, 0.50);
-  --danger-25: rgba(228, 28, 28, 0.25);
-  --radius-main: 32px;
-  --radius-pill: 9999px;
+    --bg-primary: #0A0A0A;
+    --bg-slight: rgba(255, 255, 255, 0.03);
+    --bg-secondary: rgba(255, 255, 255, 0.05);
+    --bg-tertiary: rgba(255, 255, 255, 0.10);
+    --bg-highlight: #FFFFFF;
+    --tx-primary: rgba(255, 255, 255, 0.90);
+    --tx-secondary: rgba(255, 255, 255, 0.50);
+    --stroke-primary: rgba(255, 255, 255, 0.10);
+    --brand-primary: #1164FF;
+    --brand-50: rgba(17, 100, 255, 0.50);
+    --brand-25: rgba(17, 100, 255, 0.25);
+    --warning: #FF5811;
+    --warning-50: rgba(255, 88, 17, 0.50);
+    --warning-25: rgba(255, 88, 17, 0.25);
+    --danger: #D50101;
+    --danger-50: rgba(228, 28, 28, 0.50);
+    --danger-25: rgba(228, 28, 28, 0.25);
+    --radius-main: 32px;
+    --radius-pill: 9999px;
 }
 
 body {
@@ -50,7 +50,10 @@ body {
 
 svg {
     fill: var(--tx-secondary);
-    * { fill: var(--tx-secondary); }
+
+    * {
+        fill: var(--tx-secondary);
+    }
 }
 
 main {
@@ -112,13 +115,17 @@ button {
     background-color: var(--warning-25);
 }
 
-.btn_warning * { fill: var(--warning); }
+.btn_warning * {
+    fill: var(--warning);
+}
 
 .btn_danger {
     background-color: var(--danger-25);
 }
 
-.btn_danger * { fill: var(--danger); }
+.btn_danger * {
+    fill: var(--danger);
+}
 
 .btn.btn_skip {
     background-color: var(--brand-25);
@@ -134,7 +141,11 @@ button {
 
     &.opened {
         background-color: var(--bg-tertiary);
-        svg * { fill: var(--tx-primary); }
+
+        svg * {
+            fill: var(--tx-primary);
+        }
+
         .chevron {
             transform: rotate(180deg);
             transition: .15s;
@@ -142,17 +153,32 @@ button {
     }
 }
 
-.btn_danger:hover { background-color: var(--danger-50); }
-.btn_warning:hover { background-color: var(--warning-50); }
-.btn_skip:hover { background-color: var(--brand-50); color: var(--tx-primary); }
-.btn_default:hover { background-color: var(--bg-tertiary); }
+.btn_danger:hover {
+    background-color: var(--danger-50);
+}
+
+.btn_warning:hover {
+    background-color: var(--warning-50);
+}
+
+.btn_skip:hover {
+    background-color: var(--brand-50);
+    color: var(--tx-primary);
+}
+
+.btn_default:hover {
+    background-color: var(--bg-tertiary);
+}
 
 .btn.btn_dimm {
     opacity: 0.1;
     pointer-events: none;
     background-color: var(--bg-tertiary);
     color: var(--tx-primary);
-    * { fill: var(--tx-primary); }
+
+    * {
+        fill: var(--tx-primary);
+    }
 }
 
 /* Actions */
@@ -168,7 +194,8 @@ button {
     justify-content: space-between;
 }
 
-.actions .start, .end {
+.actions .start,
+.end {
     display: flex;
     gap: 8px;
 }
@@ -178,7 +205,10 @@ button {
     border-top: 1px solid var(--stroke-primary);
     justify-content: space-between;
     display: none;
-    &.show { display: flex; }
+
+    &.show {
+        display: flex;
+    }
 }
 
 .header .filter .field_group {
@@ -186,10 +216,15 @@ button {
     align-items: center;
     gap: 12px;
     padding: 4px 0;
-    span { color: var(--tx-secondary); }
+
+    span {
+        color: var(--tx-secondary);
+    }
 }
 
-.i_am { padding-left: 20px !important; }
+.i_am {
+    padding-left: 20px !important;
+}
 
 .header .filter .field_group .radio-group {
     display: flex;
@@ -202,18 +237,24 @@ button {
 }
 
 .header .filter .field_group .btn_default {
-    width: 56px;
+    width: max-content;
+    padding: 0 16px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.header .filter .field_group .btn svg { fill: var(--tx-secondary); }
+.header .filter .field_group .btn svg {
+    fill: var(--tx-secondary);
+}
 
-.header .filter .field_group input[type="radio"]:checked + .btn {
+.header .filter .field_group input[type="radio"]:checked+.btn {
     background: var(--bg-highlight);
     color: var(--bg-primary);
-    svg * { fill: var(--bg-primary); }
+
+    svg * {
+        fill: var(--bg-primary);
+    }
 }
 
 /* Chat area */
@@ -225,9 +266,17 @@ button {
     flex-direction: column;
     gap: 32px;
 
-    &::-webkit-scrollbar { width: 4px; }
-    &::-webkit-scrollbar-track { background: transparent; }
-    &::-webkit-scrollbar-thumb { background: transparent; }
+    &::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: transparent;
+    }
 }
 
 .typing-indicator {
@@ -248,18 +297,41 @@ button {
         border-radius: 50%;
         background: var(--tx-secondary);
         animation: bounce 1s infinite ease-in-out;
-        &:nth-child(1) { animation-delay: 0s; }
-        &:nth-child(2) { animation-delay: 0.1s; }
-        &:nth-child(3) { animation-delay: 0.2s; }
+
+        &:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        &:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        &:nth-child(3) {
+            animation-delay: 0.2s;
+        }
     }
 }
 
 @keyframes bounce {
-    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-    30% { transform: translateY(-4px); opacity: 1; }
+
+    0%,
+    60%,
+    100% {
+        transform: translateY(0);
+        opacity: 0.4;
+    }
+
+    30% {
+        transform: translateY(-4px);
+        opacity: 1;
+    }
 }
 
-.fresh, .searching, .chat_area { display: none; }
+.fresh,
+.searching,
+.chat_area {
+    display: none;
+}
 
 .fresh {
     padding: 12px;
@@ -299,7 +371,9 @@ button {
     justify-content: center;
     gap: 8px;
 
-    .label { color: var(--tx-secondary); }
+    .label {
+        color: var(--tx-secondary);
+    }
 
     h1 {
         font-family: var(--font-serif);
@@ -309,7 +383,11 @@ button {
         text-align: center;
         max-width: 600px;
         transition: 0.8s ease-in-out;
-        &.fade { opacity: 0; filter: blur(10px); }
+
+        &.fade {
+            opacity: 0;
+            filter: blur(10px);
+        }
     }
 
     .loader {
@@ -324,16 +402,33 @@ button {
         gap: 8px;
         border-radius: var(--radius-pill);
         font-weight: 500;
-        * { fill: var(--brand-primary); }
+
+        * {
+            fill: var(--brand-primary);
+        }
     }
 }
 
 @keyframes spin {
-    0%   { transform: rotate(0deg); }
-    25%  { transform: rotate(90deg); }
-    50%  { transform: rotate(180deg); }
-    75%  { transform: rotate(270deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    25% {
+        transform: rotate(90deg);
+    }
+
+    50% {
+        transform: rotate(180deg);
+    }
+
+    75% {
+        transform: rotate(270deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .spinner {
@@ -364,11 +459,13 @@ button {
         position: relative;
         display: flex;
         justify-content: center;
+
         span {
             font-size: 14px;
             color: var(--tx-secondary);
             background-color: var(--bg-primary);
             padding: 0 24px;
+
             &::after {
                 content: '';
                 position: absolute;
@@ -384,11 +481,21 @@ button {
     }
 }
 
-.fresh-show .fresh     { display: flex; }
-.searching-show .searching { display: flex; }
-.chat_area-show .chat_area { display: flex; }
+.fresh-show .fresh {
+    display: flex;
+}
 
-.hide { display: none !important; }
+.searching-show .searching {
+    display: flex;
+}
+
+.chat_area-show .chat_area {
+    display: flex;
+}
+
+.hide {
+    display: none !important;
+}
 
 .they_left_bubble {
     background-color: var(--warning-25);
@@ -400,13 +507,16 @@ button {
     border-radius: 32px;
     margin-top: auto;
 
-    span { color: var(--warning); }
+    span {
+        color: var(--warning);
+    }
 
     .btn {
         background-color: var(--bg-tertiary);
         color: var(--tx-primary);
         padding: 0 18px;
         transition: .3s;
+
         &:hover {
             background-color: var(--bg-highlight);
             color: var(--bg-primary);
@@ -437,6 +547,7 @@ button {
 
 [data-tooltip] {
     position: relative;
+
     &::after {
         content: attr(data-tooltip);
         position: absolute;
@@ -454,6 +565,7 @@ button {
         pointer-events: none;
         transition: opacity 0.2s ease;
     }
+
     &:hover::after {
         opacity: 1;
         transition-delay: 0.5s;
@@ -482,37 +594,72 @@ button {
         width: 100%;
         gap: 2px;
 
-        textarea {
+        .text-area-element {
             background: none;
-            stroke: none;
             outline: none;
             border: none;
             padding: 8.5px 0px;
-            resize: none;
             font-family: var(--font-sans);
             color: var(--tx-primary);
             flex-grow: 1;
+            min-height: 24px;
             max-height: 100px;
             overflow-y: auto;
+            line-height: 1.5;
+            word-break: break-word;
 
-            &::-webkit-scrollbar { width: 4px; }
-            &::-webkit-scrollbar-track { background: transparent; }
+            &:empty::before {
+                content: attr(data-placeholder);
+                color: var(--tx-secondary);
+                pointer-events: none;
+            }
+
+            &::-webkit-scrollbar {
+                width: 4px;
+            }
+
+            &::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
             &::-webkit-scrollbar-thumb {
                 background: var(--stroke-primary);
                 border-radius: 4px;
-                &:hover { background: var(--tx-secondary); }
+
+                &:hover {
+                    background: var(--tx-secondary);
+                }
             }
+        }
+
+        .input-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 4px;
+            border-radius: 8px;
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--stroke-primary);
+            margin-right: 4px;
+            vertical-align: middle;
+            user-select: none;
         }
 
         .btn_send {
             width: 56px;
             background-color: var(--bg-tertiary);
             pointer-events: none;
-            * { fill: var(--tx-secondary); }
+
+            * {
+                fill: var(--tx-secondary);
+            }
+
             &.enabled {
                 background-color: var(--brand-primary);
                 pointer-events: all;
-                * { fill: var(--tx-primary); }
+
+                * {
+                    fill: var(--tx-primary);
+                }
             }
         }
 
@@ -527,7 +674,7 @@ button {
                 grid-row-start: 2;
             }
 
-            textarea {
+            .text-area-element {
                 width: 100%;
                 grid-column: span 2 / span 2;
                 grid-column-start: 1;
@@ -552,7 +699,10 @@ button {
             display: flex;
             justify-content: space-between;
             margin-bottom: 4px;
-            span { color: var(--tx-secondary); }
+
+            span {
+                color: var(--tx-secondary);
+            }
         }
 
         p {
@@ -564,7 +714,9 @@ button {
         }
     }
 
-    &.replaying .replay { display: block; }
+    &.replaying .replay {
+        display: block;
+    }
 
     .timer {
         padding: 12px;
@@ -574,7 +726,9 @@ button {
         gap: 12px;
         align-items: center;
 
-        &.show { display: flex; }
+        &.show {
+            display: flex;
+        }
 
         .timer-chip {
             padding: 12px;
@@ -587,8 +741,14 @@ button {
             background-color: var(--warning-25);
             transition: .3s;
             cursor: pointer;
-            * { fill: var(--warning); }
-            &:hover { background-color: var(--warning-50); }
+
+            * {
+                fill: var(--warning);
+            }
+
+            &:hover {
+                background-color: var(--warning-50);
+            }
         }
 
         .presets-list {
@@ -611,10 +771,13 @@ button {
                 background-color: var(--bg-slight);
                 transition: .3s;
                 cursor: pointer;
-                &:hover { background-color: var(--bg-tertiary); }
+
+                &:hover {
+                    background-color: var(--bg-tertiary);
+                }
             }
 
-            [type="radio"]:checked + .btn {
+            [type="radio"]:checked+.btn {
                 background-color: var(--bg-tertiary);
             }
         }
@@ -627,10 +790,17 @@ button {
             height: 38px;
             border-radius: var(--radius-pill);
             transition: .3s;
-            * { transition: .3s; }
+
+            * {
+                transition: .3s;
+            }
+
             &:hover {
                 background-color: var(--bg-secondary);
-                * { fill: var(--tx-primary); }
+
+                * {
+                    fill: var(--tx-primary);
+                }
             }
         }
     }
@@ -644,15 +814,24 @@ button {
         width: 40px;
         height: 40px;
         transition: 0.3s;
-        &:hover { background-color: var(--bg-secondary); }
 
-        svg { transition: transform 0.2s ease; }
+        &:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        svg {
+            transition: transform 0.2s ease;
+        }
 
         &.active {
             background-color: var(--bg-tertiary);
+
             svg {
                 transform: rotate(-45deg);
-                path { fill: var(--tx-primary); }
+
+                path {
+                    fill: var(--tx-primary);
+                }
             }
         }
     }
@@ -696,7 +875,10 @@ button {
             &:hover {
                 background-color: var(--bg-secondary);
                 color: var(--tx-primary);
-                * { fill: var(--tx-primary); }
+
+                * {
+                    fill: var(--tx-primary);
+                }
             }
         }
     }
@@ -720,13 +902,19 @@ button {
 
         &[data-direction="incoming"] {
             background-color: var(--bg-slight);
-            &:hover { background-color: var(--bg-tertiary); }
+
+            &:hover {
+                background-color: var(--bg-tertiary);
+            }
         }
 
         &[data-direction="outgoing"] {
             background-color: var(--brand-50);
             align-self: flex-end;
-            &:hover { background-color: var(--brand-primary); }
+
+            &:hover {
+                background-color: var(--brand-primary);
+            }
         }
 
         &[data-timer="true"] {
@@ -745,18 +933,26 @@ button {
                 }
             }
 
-            * { fill: var(--warning); }
+            * {
+                fill: var(--warning);
+            }
 
-            &:hover { background-color: var(--warning-50); }
+            &:hover {
+                background-color: var(--warning-50);
+            }
         }
 
         &[data-timer-done="true"] {
             background-color: var(--bg-tertiary);
             cursor: default;
 
-            * { fill: var(--tx-secondary); }
+            * {
+                fill: var(--tx-secondary);
+            }
 
-            &:hover { background-color: var(--bg-tertiary); }
+            &:hover {
+                background-color: var(--bg-tertiary);
+            }
         }
 
         &[data-link-state] {
@@ -769,7 +965,9 @@ button {
                 align-items: center;
                 gap: 12px;
 
-                .blurred { filter: blur(10px); }
+                .blurred {
+                    filter: blur(10px);
+                }
 
                 img {
                     width: 20px;
@@ -797,17 +995,24 @@ button {
             }
 
             &[data-direction="outgoing"] {
-                .link-hint { left: unset; right: 12px; }
+                .link-hint {
+                    left: unset;
+                    right: 12px;
+                }
+
                 .link-pill a {
                     color: var(--tx-primary);
-                    &:hover { color: var(--tx-primary); }
+
+                    &:hover {
+                        color: var(--tx-primary);
+                    }
                 }
             }
 
             &[data-direction="incoming"] {
                 .link-pill a {
-                    color: var(--brand-primary);
-                    &:hover { color: #3177f9; }
+                    color: var(--tx-primary);
+
                 }
             }
         }
@@ -831,7 +1036,9 @@ button {
             filter: blur(10px);
         }
 
-        &:has(.reply-quote) { padding-top: 16px; }
+        &:has(.reply-quote) {
+            padding-top: 16px;
+        }
 
         .reply-quote {
             display: flex;
@@ -912,8 +1119,14 @@ button {
                         width: 38px;
                         height: 38px;
                         user-select: none;
-                        &:hover { background-color: var(--bg-tertiary); }
-                        &.active { background-color: var(--bg-tertiary); }
+
+                        &:hover {
+                            background-color: var(--bg-tertiary);
+                        }
+
+                        &.active {
+                            background-color: var(--bg-tertiary);
+                        }
                     }
                 }
 
@@ -942,8 +1155,14 @@ button {
                         font-size: 15px;
                         border-radius: 12px;
                         transition: .15s;
-                        svg * { fill: var(--tx-primary); }
-                        &:hover { background-color: var(--bg-secondary); }
+
+                        svg * {
+                            fill: var(--tx-primary);
+                        }
+
+                        &:hover {
+                            background-color: var(--bg-secondary);
+                        }
                     }
                 }
 
@@ -970,7 +1189,9 @@ button {
         &[data-direction="outgoing"] {
             align-self: flex-end;
 
-            .reply-quote { flex-direction: row-reverse; }
+            .reply-quote {
+                flex-direction: row-reverse;
+            }
 
             .message-main {
                 align-self: flex-end;
@@ -978,6 +1199,7 @@ button {
                 .message-popup {
                     right: calc(100% + 8px) !important;
                     left: unset;
+
                     .reactions_bar {
                         left: 0 !important;
                         right: unset;
@@ -1044,7 +1266,9 @@ button {
             padding: 12px;
             gap: 16px;
 
-            h1 { font-size: 2rem; }
+            h1 {
+                font-size: 2rem;
+            }
         }
 
         .searching {
@@ -1053,7 +1277,9 @@ button {
             padding: 12px;
             gap: 16px;
 
-            h1 { font-size: 2rem; }
+            h1 {
+                font-size: 2rem;
+            }
         }
 
         .chat_area {
@@ -1090,6 +1316,7 @@ button {
 
             .message-main {
                 max-width: calc(100% - 114px);
+
                 .message {
                     max-width: 100%;
                 }
@@ -1097,7 +1324,10 @@ button {
 
             .reply-quote {
                 gap: 4px !important;
-                .indicator { width: 3px !important; }
+
+                .indicator {
+                    width: 3px !important;
+                }
             }
 
             .quote {
@@ -1150,7 +1380,7 @@ button {
                     }
                 }
 
-                textarea {
+                .text-area-element {
                     padding-left: 12px !important;
                 }
             }
@@ -1158,7 +1388,7 @@ button {
             .textarea {
                 gap: 8px;
 
-                textarea {
+                .text-area-element {
                     padding-left: 0;
                 }
 

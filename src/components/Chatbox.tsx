@@ -25,35 +25,35 @@ interface Props {
 
 export default function Chatbox({ onSend, onTyping, canSend, pendingReply, onClearReply }: Props) {
   const { t } = useLang()
-  const [draft, setDraft]               = useState('')
-  const [multiline, setMultiline]       = useState(false)
-  const [toolsOpen, setToolsOpen]       = useState(false)
-  const [timerOpen, setTimerOpen]       = useState(false)
-  const [timerChipTime, setTimerChipTime] = useState('00:00')
+  const [hasContent, setHasContent]         = useState(false)
+  const [multiline, setMultiline]           = useState(false)
+  const [toolsOpen, setToolsOpen]           = useState(false)
+  const [timerOpen, setTimerOpen]           = useState(false)
+  const [timerChipTime, setTimerChipTime]   = useState('00:00')
   const [selectedPreset, setSelectedPreset] = useState('')
-  const [focused, setFocused]           = useState(false)
-  const textareaRef                     = useRef<HTMLTextAreaElement>(null)
-  const typingTimeout                   = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const isMobile                        = window.innerWidth <= 768
+  const [focused, setFocused]               = useState(false)
+  const inputRef                            = useRef<HTMLDivElement>(null)
+  const singleLineH                         = useRef(0)
+  const typingTimeout                       = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isMobile                            = window.innerWidth <= 768
 
-  // Focus textarea when reply is set
+  // Capture single-line height once on mount for multiline detection
   useEffect(() => {
-    if (pendingReply) textareaRef.current?.focus()
+    if (inputRef.current) singleLineH.current = inputRef.current.offsetHeight
+  }, [])
+
+  useEffect(() => {
+    if (pendingReply) inputRef.current?.focus()
   }, [pendingReply])
 
-  // Tab key focuses textarea
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Tab') {
-        e.preventDefault()
-        textareaRef.current?.focus()
-      }
+      if (e.key === 'Tab') { e.preventDefault(); inputRef.current?.focus() }
     }
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [])
 
-  // Close tools menu on outside click
   useEffect(() => {
     function onDocClick(e: MouseEvent) {
       if (!(e.target as Element).closest('.tools-menu')) setToolsOpen(false)
@@ -62,59 +62,176 @@ export default function Chatbox({ onSend, onTyping, canSend, pendingReply, onCle
     return () => document.removeEventListener('click', onDocClick)
   }, [])
 
-  function setTextarea(value: string) {
-    const el = textareaRef.current
-    if (!el) return
-    el.value = value
-    el.style.height = 'auto'
-    el.style.height = Math.min(el.scrollHeight, 160) + 'px'
-    setDraft(value)
-    setMultiline(el.scrollHeight > 40)
+  // ── contenteditable helpers ───────────────────────────────────────────────
+
+  function getInputText(): string {
+    const el = inputRef.current
+    if (!el) return ''
+    let result = ''
+    el.childNodes.forEach(node => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        result += node.textContent ?? ''
+      } else if ((node as HTMLElement).classList?.contains('input-chip')) {
+        result += (node as HTMLElement).dataset.value ?? ''
+      } else {
+        result += (node as HTMLElement).textContent ?? ''
+      }
+    })
+    return result.trim()
   }
 
-  function handleInput() {
-    const el = textareaRef.current
+  function clearInput() {
+    const el = inputRef.current
     if (!el) return
-    el.style.height = 'auto'
-    el.style.height = Math.min(el.scrollHeight, 160) + 'px'
-    setDraft(el.value)
-    setMultiline(el.scrollHeight > 40)
+    el.innerHTML = ''
+    setHasContent(false)
+    setMultiline(false)
+    if (isMobile) setFocused(false)
+  }
 
-    // Mobile: toggle focused to hide tools-menu when typing
-    if (isMobile) setFocused(el.value.length > 0)
+  function injectTimerChip(seconds: number) {
+    const el = inputRef.current
+    if (!el) return
+    const chip = document.createElement('span')
+    chip.className = 'input-chip'
+    chip.contentEditable = 'false'
+    chip.dataset.value = `/brb ${seconds}sec`
+    chip.innerHTML = `<span>${formatTime(seconds)}</span>`
 
-    // Live update timer chip if timer bar is open — mirrors mockup script.js
+    const sel = window.getSelection()
+    if (sel && sel.rangeCount && el.contains(sel.anchorNode)) {
+      const range = sel.getRangeAt(0)
+      range.deleteContents()
+      range.insertNode(chip)
+      range.setStartAfter(chip)
+      range.collapse(true)
+      sel.removeAllRanges()
+      sel.addRange(range)
+    } else {
+      el.appendChild(chip)
+    }
+
+    setHasContent(true)
+    el.focus()
+  }
+
+  // ── event handlers ────────────────────────────────────────────────────────
+
+  function handleInput() {
+    const el = inputRef.current
+    if (!el) return
+    const text = getInputText()
+    setHasContent(text.length > 0)
+    setMultiline(el.scrollHeight > singleLineH.current + 8)
+    if (isMobile) setFocused(text.length > 0)
+
     if (timerOpen) {
-      const match = el.value.match(/^\/timer (\d+)(?:sec)?$/)
+      const match = text.match(/^\/brb (\d+)sec$/)
       if (match) {
         const secs = parseInt(match[1])
         if (secs > 0 && secs <= 600) setTimerChipTime(formatTime(secs))
       }
     }
 
-    if (canSend && el.value.trim()) {
+    if (canSend && text.length > 0) {
       onTyping()
       if (typingTimeout.current) clearTimeout(typingTimeout.current)
       typingTimeout.current = setTimeout(() => { typingTimeout.current = null }, 2000)
     }
   }
 
+  function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSend()
+      return
+    }
+
+    // Space after /timer N → inject chip
+    if (e.key === ' ') {
+      const sel = window.getSelection()
+      if (sel && sel.rangeCount) {
+        const range = sel.getRangeAt(0)
+        const textNode = range.startContainer
+        if (textNode.nodeType === Node.TEXT_NODE) {
+          const textBefore = (textNode.textContent ?? '').slice(0, range.startOffset)
+          const timerMatch = textBefore.match(/\/timer (\d+)$/)
+          if (timerMatch) {
+            const seconds = parseInt(timerMatch[1])
+            if (seconds > 0 && seconds <= 600) {
+              e.preventDefault()
+              const idx = textBefore.lastIndexOf('/timer ' + timerMatch[1])
+              const before = (textNode.textContent ?? '').slice(0, idx)
+              const after  = (textNode.textContent ?? '').slice(idx + timerMatch[0].length)
+
+              const chip = document.createElement('span')
+              chip.className = 'input-chip'
+              chip.contentEditable = 'false'
+              chip.dataset.value = `/brb ${seconds}sec`
+              chip.innerHTML = `<span>${formatTime(seconds)}</span>`
+
+              ;(textNode as Text).textContent = before
+              const afterNode = document.createTextNode(' ' + (after.length ? after : ''))
+              textNode.parentNode!.insertBefore(chip, textNode.nextSibling)
+              textNode.parentNode!.insertBefore(afterNode, chip.nextSibling)
+
+              const newRange = document.createRange()
+              newRange.setStart(afterNode, 1)
+              newRange.collapse(true)
+              sel.removeAllRanges()
+              sel.addRange(newRange)
+              // force caret repaint
+              inputRef.current!.blur()
+              inputRef.current!.focus()
+
+              setHasContent(true)
+            }
+          }
+        }
+      }
+    }
+
+    // Backspace at start of text node right after a chip → restore to /timer N text
+    if (e.key === 'Backspace') {
+      const sel = window.getSelection()
+      if (sel && sel.rangeCount) {
+        const range = sel.getRangeAt(0)
+        if (range.collapsed) {
+          const prev = range.startContainer.nodeType === Node.TEXT_NODE && range.startOffset === 0
+            ? (range.startContainer as Text).previousSibling
+            : null
+          if (prev && (prev as HTMLElement).classList?.contains('input-chip')) {
+            e.preventDefault()
+            const chipValue = (prev as HTMLElement).dataset.value ?? ''
+            const brbMatch  = chipValue.match(/^\/brb (\d+)sec$/)
+            const seconds   = brbMatch ? parseInt(brbMatch[1]) : null
+            const textNode  = document.createTextNode(seconds ? `/timer ${seconds}` : chipValue)
+            prev.parentNode!.insertBefore(textNode, prev)
+            prev.remove()
+            const newRange = document.createRange()
+            newRange.setStartAfter(textNode)
+            newRange.collapse(true)
+            sel.removeAllRanges()
+            sel.addRange(newRange)
+            setHasContent(getInputText().length > 0)
+          }
+        }
+      }
+    }
+  }
+
   function handleSend() {
-    const text = draft.trim()
+    const text = getInputText()
     if (!text || !canSend) return
     onSend(text)
-    setDraft('')
-    setMultiline(false)
-    const el = textareaRef.current
-    if (el) { el.value = ''; el.style.height = 'auto' }
-    // Close timer bar after sending BRB
+    clearInput()
     if (timerOpen) closeTimer()
   }
 
   function resetTimer() {
     setTimerChipTime('00:00')
     setSelectedPreset('')
-    setTextarea('')
+    clearInput()
   }
 
   function closeTimer() {
@@ -130,11 +247,11 @@ export default function Chatbox({ onSend, onTyping, canSend, pendingReply, onCle
   function handlePresetChange(seconds: number, value: string) {
     setSelectedPreset(value)
     setTimerChipTime(formatTime(seconds))
-    setTextarea(`/timer ${seconds}sec`)
-    textareaRef.current?.focus()
+    clearInput()
+    injectTimerChip(seconds)
   }
 
-  const sendEnabled = draft.trim() !== '' && canSend
+  const sendEnabled = hasContent && canSend
 
   return (
     <div className="chatbox_holder">
@@ -196,7 +313,7 @@ export default function Chatbox({ onSend, onTyping, canSend, pendingReply, onCle
             </button>
             <button className="action_btn">
               <svg width="23" height="23" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M7.78678 20.3287C6.62081 19.8256 5.60258 19.1388 4.7321 18.2683C3.86161 17.3978 3.1748 16.3796 2.67168 15.2136C2.16855 14.0477 1.91699 12.8058 1.91699 11.4881C1.91699 10.1704 2.16855 8.93255 2.67168 7.77456C3.1748 6.61657 3.86161 5.60234 4.7321 4.73185C5.60258 3.86137 6.62081 3.17456 7.78678 2.67144C8.95276 2.16831 10.1946 1.91675 11.5123 1.91675C12.83 1.91675 14.0679 2.16831 15.2258 2.67144C16.3838 3.17456 17.3981 3.86137 18.2686 4.73185C19.139 5.60234 19.8258 6.61657 20.329 7.77456C20.8321 8.93255 21.0837 10.1704 21.0837 11.4881C21.0837 12.8058 20.8321 14.0477 20.329 15.2136C19.8258 16.3796 19.139 17.3978 18.2686 18.2683C17.3981 19.1388 16.3838 19.8256 15.2258 20.3287C14.0679 20.8319 12.83 21.0834 11.5123 21.0834C10.1946 21.0834 8.95276 20.8319 7.78678 20.3287ZM11.5003 19.1188C11.9156 18.5438 12.275 17.9449 12.5785 17.322C12.8819 16.699 13.1295 16.0362 13.3212 15.3334H9.67949C9.87116 16.0362 10.1187 16.699 10.4222 17.322C10.7257 17.9449 11.085 18.5438 11.5003 19.1188ZM9.00866 18.7355C8.72116 18.2084 8.4696 17.6614 8.25397 17.0944C8.03835 16.5273 7.85866 15.9404 7.71491 15.3334H4.88783C5.35102 16.132 5.93001 16.8268 6.6248 17.4178C7.3196 18.0088 8.11421 18.448 9.00866 18.7355ZM13.992 18.7355C14.8864 18.448 15.6811 18.0088 16.3758 17.4178C17.0706 16.8268 17.6496 16.132 18.1128 15.3334H15.2857C15.142 15.9404 14.9623 16.5273 14.7467 17.0944C14.5311 17.6614 14.2795 18.2084 13.992 18.7355ZM4.07324 13.4167H7.33158C7.28366 13.0973 7.24772 12.7819 7.22376 12.4704C7.1998 12.1589 7.18783 11.8355 7.18783 11.5001C7.18783 11.1647 7.1998 10.8412 7.22376 10.5298C7.24772 10.2183 7.28366 9.90286 7.33158 9.58341H4.07324C3.99338 9.90286 3.93349 10.2183 3.89355 10.5298C3.85362 10.8412 3.83366 11.1647 3.83366 11.5001C3.83366 11.8355 3.85362 12.1589 3.89355 12.4704C3.93349 12.7819 3.99338 13.0973 4.07324 13.4167ZM9.24824 13.4167H13.7524C13.8003 13.0973 13.8363 12.7819 13.8602 12.4704C13.8842 12.1589 13.8962 11.8355 13.8962 11.5001C13.8962 11.1647 13.8842 10.8412 13.8602 10.5298C13.8363 10.2183 13.8003 9.90286 13.7524 9.58341H9.24824C9.20033 9.90286 9.16439 10.2183 9.14043 10.5298C9.11647 10.8412 9.10449 11.1647 9.10449 11.5001C9.10449 11.8355 9.11647 12.1589 9.14043 12.4704C9.16439 12.7819 9.20033 13.0973 9.24824 13.4167ZM15.6691 13.4167H18.9274C19.0073 13.0973 19.0672 12.7819 19.1071 12.4704C19.147 12.1589 19.167 11.8355 19.167 11.5001C19.167 11.1647 19.147 10.8412 19.1071 10.5298C19.0672 10.2183 19.0073 9.90286 18.9274 9.58341H15.6691C15.717 9.90286 15.7529 10.2183 15.7769 10.5298C15.8008 10.8412 15.8128 11.1647 15.8128 11.5001C15.8128 11.8355 15.8008 12.1589 15.7769 12.4704C15.7529 12.7819 15.717 13.0973 15.6691 13.4167ZM15.2857 7.66675H18.1128C17.6496 6.86814 17.0706 6.17335 16.3758 5.58237C15.6811 4.9914 14.8864 4.55216 13.992 4.26466C14.2795 4.79175 14.5311 5.3388 14.7467 5.90581C14.9623 6.47282 15.142 7.0598 15.2857 7.66675ZM9.67949 7.66675H13.3212C13.1295 6.96397 12.8819 6.30112 12.5785 5.67821C12.275 5.05529 11.9156 4.45633 11.5003 3.88133C11.085 4.45633 10.7257 5.05529 10.4222 5.67821C10.1187 6.30112 9.87116 6.96397 9.67949 7.66675ZM4.88783 7.66675H7.71491C7.85866 7.0598 8.03835 6.47282 8.25397 5.90581C8.4696 5.3388 8.72116 4.79175 9.00866 4.26466C8.11421 4.55216 7.3196 4.9914 6.6248 5.58237C5.93001 6.17335 5.35102 6.86814 4.88783 7.66675Z"/>
+                <path d="M7.78678 20.3287C6.62081 19.8256 5.60258 19.1388 4.7321 18.2683C3.86161 17.3978 3.1748 16.3796 2.67168 15.2136C2.16855 14.0477 1.91699 12.8058 1.91699 11.4881C1.91699 10.1704 2.16855 8.93255 2.67168 7.77456C3.1748 6.61657 3.86161 5.60234 4.7321 4.73185C5.60258 3.86137 6.62081 3.17456 7.78678 2.67144C8.95276 2.16831 10.1946 1.91675 11.5123 1.91675C12.83 1.91675 14.0679 2.16831 15.2258 2.67144C16.3838 3.17456 17.3981 3.86137 18.2686 4.73185C19.139 5.60234 19.8258 6.61657 20.329 7.77456C20.8321 8.93255 21.0837 10.1704 21.0837 11.4881C21.0837 12.8058 20.8321 14.0477 20.329 15.2136C19.8258 16.3796 19.139 17.3978 18.2686 18.2683C17.3981 19.1388 16.3838 19.8256 15.2258 20.3287C14.0679 20.8319 12.83 21.0834 11.5123 21.0834C10.1946 21.0834 8.95276 20.8319 7.78678 20.3287ZM11.5003 19.1188C11.9156 18.5438 12.275 17.9449 12.5785 17.322C12.8819 16.699 13.1295 16.0362 13.3212 15.3334H9.67949C9.87116 16.0362 10.1187 16.699 10.4222 17.322C10.7257 17.9449 11.085 18.5438 11.5003 19.1188ZM9.00866 18.7355C8.72116 18.2084 8.4696 17.6614 8.25397 17.0944C8.03835 16.5273 7.85866 15.9404 7.71491 15.3334H4.88783C5.35102 16.132 5.93001 16.8268 6.6248 17.4178C7.3196 18.0088 8.11421 18.448 9.00866 18.7355ZM13.992 18.7355C14.8864 18.448 15.6811 18.0088 16.3758 17.4178C17.0706 16.8268 17.6496 16.132 18.1128 15.3334H15.2857C15.142 15.9404 14.9623 16.5273 14.7467 17.0944C14.5311 17.6614 14.2795 18.2084 13.992 18.7355ZM4.07324 13.4167H7.33158C7.28366 13.0973 7.24772 12.7819 7.22376 12.4704C7.1998 12.1589 7.18783 11.8355 7.18783 11.5001C7.18783 11.1647 7.1998 10.8412 7.22376 10.5298C7.24772 10.2183 7.28366 9.90286 7.33158 9.58341H4.07324C3.99338 9.90286 3.93349 10.2183 3.89355 10.5298C3.85362 10.8412 3.83366 11.1647 3.83366 11.5001C3.83366 11.8355 3.85362 12.1589 3.89355 12.4704C3.93349 12.7819 3.99338 13.0973 4.07324 13.4167ZM9.24824 13.4167H13.7524C13.8003 13.0973 13.8363 12.7819 13.8602 12.4704C13.8842 12.1589 13.8962 11.8355 13.8962 11.5001C13.8962 11.1647 13.8842 10.8412 13.8602 10.5298C13.8363 10.2183 13.8003 9.90286 13.7524 9.58341H9.24824C9.20033 9.90286 9.16439 10.2183 9.14043 10.5298C9.11647 10.8412 9.10449 11.1647 9.14043 12.4704C9.16439 12.7819 9.20033 13.0973 9.24824 13.4167ZM15.6691 13.4167H18.9274C19.0073 13.0973 19.0672 12.7819 19.1071 12.4704C19.147 12.1589 19.167 11.8355 19.167 11.5001C19.167 11.1647 19.147 10.8412 19.1071 10.5298C19.0672 10.2183 19.0073 9.90286 18.9274 9.58341H15.6691C15.717 9.90286 15.7529 10.2183 15.7769 10.5298C15.8008 10.8412 15.8128 11.1647 15.7769 12.4704C15.7529 12.7819 15.717 13.0973 15.6691 13.4167ZM15.2857 7.66675H18.1128C17.6496 6.86814 17.0706 6.17335 16.3758 5.58237C15.6811 4.9914 14.8864 4.55216 13.992 4.26466C14.2795 4.79175 14.5311 5.3388 14.7467 5.90581C14.9623 6.47282 15.142 7.0598 15.2857 7.66675ZM9.67949 7.66675H13.3212C13.1295 6.96397 12.8819 6.30112 12.5785 5.67821C12.275 5.05529 11.9156 4.45633 11.5003 3.88133C11.085 4.45633 10.7257 5.05529 10.4222 5.67821C10.1187 6.30112 9.87116 6.96397 9.67949 7.66675ZM4.88783 7.66675H7.71491C7.85866 7.0598 8.03835 6.47282 8.25397 5.90581C8.4696 5.3388 8.72116 4.79175 9.00866 4.26466C8.11421 4.55216 7.3196 4.9914 6.6248 5.58237C5.93001 6.17335 5.35102 6.86814 4.88783 7.66675Z"/>
               </svg>
               <span>Share contacts</span>
             </button>
@@ -211,18 +328,16 @@ export default function Chatbox({ onSend, onTyping, canSend, pendingReply, onCle
           </button>
         </div>
 
-        <textarea
-          ref={textareaRef}
-          placeholder={t('chatbox.placeholder')}
-          rows={1}
+        <div
+          ref={inputRef}
+          contentEditable
+          suppressContentEditableWarning
+          className="text-area-element"
+          data-placeholder={t('chatbox.placeholder')}
           onInput={handleInput}
-          onKeyDown={e => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault()
-              handleSend()
-            }
-          }}
+          onKeyDown={handleKeyDown}
         />
+
         <button
           className={`btn btn_send${sendEnabled ? ' enabled' : ''}`}
           onClick={handleSend}
