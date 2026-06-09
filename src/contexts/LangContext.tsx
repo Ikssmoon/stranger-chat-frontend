@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 
-// Vite glob — every file added to lang/ is automatically included, no code change needed
-const langModules = import.meta.glob('../config/lang/*.json')
+// eager: true — all lang files are bundled synchronously, no async flash
+const langModules = import.meta.glob('../config/lang/*.json', { eager: true })
 
 type LangData = Record<string, unknown>
 
@@ -13,7 +13,7 @@ interface LangContextValue {
 }
 
 const LangContext = createContext<LangContextValue>({
-  lang: 'en',
+  lang: 'ge',
   setLang: () => {},
   t: (k) => k,
   ta: () => [],
@@ -26,16 +26,18 @@ function resolve(data: LangData, key: string): unknown {
   }, data)
 }
 
+function loadLang(l: string): LangData {
+  const mod = langModules[`../config/lang/${l}.json`] as { default?: LangData } | undefined
+  if (!mod) return {}
+  return (mod as { default: LangData }).default ?? (mod as LangData)
+}
+
 export function LangProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState(() => localStorage.getItem('lang') ?? 'ge')
-  const [data, setData] = useState<LangData>({})
+  const [data, setData] = useState<LangData>(() => loadLang(localStorage.getItem('lang') ?? 'ge'))
 
   useEffect(() => {
-    const path = `../config/lang/${lang}.json`
-    const loader = langModules[path]
-    if (loader) {
-      loader().then((mod) => setData((mod as { default: LangData }).default ?? (mod as LangData)))
-    }
+    setData(loadLang(lang))
   }, [lang])
 
   function setLang(l: string) {
