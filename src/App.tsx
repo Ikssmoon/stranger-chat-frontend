@@ -219,10 +219,20 @@ export default function App() {
       return
     }
 
-    const id = crypto.randomUUID()
-    const replaid = pendingReply || ''
-    socket.emit('send_message', { text, id, replyTo: replaid })
-    setMessages(prev => [...prev, newMsg({ id, text, direction: 'outgoing', replaid })])
+    // Split on /brb Nsec and /timer N tokens — each becomes its own bubble (same as mockup)
+    const parts = text
+      .split(/(\/brb \d+sec|\/timer \d+(?:sec)?)/g)
+      .map(p => p.trim())
+      .filter(p => p.length > 0)
+
+    const outgoing = parts.map((part, index) => {
+      const id = crypto.randomUUID()
+      const replaid = index === 0 ? (pendingReply || '') : ''
+      socket.emit('send_message', { text: part, id, replyTo: replaid })
+      return newMsg({ id, text: part, direction: 'outgoing', replaid })
+    })
+
+    setMessages(prev => [...prev, ...outgoing])
     setPendingReply(null)
   }
 
