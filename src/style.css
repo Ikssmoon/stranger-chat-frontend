@@ -607,6 +607,8 @@ button {
             overflow-y: auto;
             line-height: 1.5;
             word-break: break-word;
+            -webkit-user-select: text;
+            user-select: text;
 
             &:empty::before {
                 content: attr(data-placeholder);

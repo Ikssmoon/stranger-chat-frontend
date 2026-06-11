@@ -37,9 +37,14 @@ export default function Chatbox({ onSend, onTyping, canSend, pendingReply, onCle
   const typingTimeout                       = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isMobile                            = window.innerWidth <= 768
 
-  // Capture single-line height once on mount for multiline detection
+  // Capture single-line height after layout settles — rAF ensures element is painted
   useEffect(() => {
-    if (inputRef.current) singleLineH.current = inputRef.current.offsetHeight
+    requestAnimationFrame(() => {
+      if (inputRef.current) {
+        const h = inputRef.current.offsetHeight
+        singleLineH.current = h > 0 ? h : 36
+      }
+    })
   }, [])
 
   useEffect(() => {
@@ -336,8 +341,11 @@ export default function Chatbox({ onSend, onTyping, canSend, pendingReply, onCle
           suppressContentEditableWarning
           className="text-area-element"
           data-placeholder={t('chatbox.placeholder')}
+          inputMode="text"
           onInput={handleInput}
           onKeyDown={handleKeyDown}
+          onFocus={() => { if (isMobile) setFocused(true) }}
+          onBlur={() => { if (isMobile) setFocused(false) }}
         />
 
         <button
