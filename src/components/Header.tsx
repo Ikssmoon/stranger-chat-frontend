@@ -41,7 +41,7 @@ export default function Header({
             </svg>
           </button>
 
-          <button className={`btn btn_skip dimmer${dimClass}`} onClick={onFindNext}>
+          <button className="btn btn_skip" onClick={onFindNext}>
             {t('header.findNext')}
           </button>
         </div>
