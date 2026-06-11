@@ -1380,7 +1380,7 @@ button {
             }
 
             &.focused {
-                .textarea {
+                .textarea:not(.multiline) {
                     padding-left: 0px;
 
                     .tools-menu {
@@ -1404,6 +1404,23 @@ button {
 
                 .btn_send {
                     width: 40px;
+                }
+
+                &.multiline {
+                    padding-left: 0;
+
+                    .tools-menu {
+                        position: relative;
+                        top: auto;
+                        left: auto;
+                        transform: none;
+                        opacity: 1;
+                        pointer-events: all;
+                    }
+
+                    .btn_send {
+                        align-self: end;
+                    }
                 }
             }
 
