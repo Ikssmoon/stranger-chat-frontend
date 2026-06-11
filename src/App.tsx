@@ -36,14 +36,33 @@ export default function App() {
   const [partnerLeft, setPartnerLeft]   = useState(false)
   const [pendingReply, setPendingReply] = useState<string | null>(null)
   const typingClearRef                  = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const unreadCount                     = useRef(0)
+  const baseTitle                       = useRef('Matchy, ანონიმური ჩატი')
+
+  // ── page title: restore on tab focus ─────────────────────────────────────
+  useEffect(() => {
+    function onVisibilityChange() {
+      if (!document.hidden) {
+        unreadCount.current = 0
+        document.title = baseTitle.current
+      }
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange)
+  }, [])
 
   // ── socket listeners ──────────────────────────────────────────────────────
   useEffect(() => {
     function onSearching() {
+      document.title = 'Matchy ეძებს პარტნიორს'
       setScreen('searching')
     }
 
     function onMatched(_: { roomId: string }) {
+      document.title = '✅ მეტჩია'
+      baseTitle.current = '✅ მეტჩია'
+      unreadCount.current = 0
+      new Audio('/audio.mp3').play().catch(() => {})
       const now = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
       setMatchTime(now)
       setMessages([])
@@ -66,6 +85,12 @@ export default function App() {
         theirReaction: '',
       }
       console.log('[onMessage] msg.replaid:', msg.replaid)
+      if (document.hidden) {
+        unreadCount.current++
+        document.title = unreadCount.current === 1
+          ? '💌 ახალი შეტყობინება'
+          : `${unreadCount.current} ახალი შეტყობინება`
+      }
       setMessages(prev => [...prev, msg])
     }
 
@@ -76,6 +101,8 @@ export default function App() {
     }
 
     function onPartnerLeft() {
+      document.title = '❌ ჩატი დასრულდა'
+      baseTitle.current = 'Matchy, ანონიმური ჩატი'
       setIsPartnerTyping(false)
       setPartnerLeft(true)
     }
