@@ -56,6 +56,10 @@
   },
   "chatbox": {
     "placeholder": "Type anything...",
-    "replaying": "Replaying"
+    "replaying": "Replaying",
+    "brbTimer": "BRB timer",
+    "miniGames": "Play mini games",
+    "shareContacts": "Share contacts",
+    "comingSoon": "Coming soon"
   }
 }

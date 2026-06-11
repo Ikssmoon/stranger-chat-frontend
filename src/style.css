@@ -880,6 +880,14 @@ button {
                     fill: var(--tx-primary);
                 }
             }
+
+            .coming-soon {
+                margin-left: auto;
+                padding-left: 8px;
+                font-size: 11px;
+                color: var(--tx-secondary);
+                opacity: 0.6;
+            }
         }
     }
 }

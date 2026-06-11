@@ -56,6 +56,10 @@
   },
   "chatbox": {
     "placeholder": "დაწერე რამე...",
-    "replaying": "გამეორება"
+    "replaying": "გამეორება",
+    "brbTimer": "BRB ტაიმერი",
+    "miniGames": "მინი თამაშები",
+    "shareContacts": "კონტაქტების გაზიარება",
+    "comingSoon": "მალე"
   }
 }
